@@ -76,7 +76,7 @@ void oauth_1(char *host, char *clientFile)
 				free(request_authorization_1_arg);
 
 				// APPROVE
-				approve_request_token_1_arg=(char *)malloc(50);
+				approve_request_token_1_arg = (char *)malloc(50);
 				strcpy(approve_request_token_1_arg, *result_1);
 				result_4 = approve_request_token_1(&approve_request_token_1_arg, clnt);
 				if (result_4 == (char **)NULL)
@@ -101,7 +101,7 @@ void oauth_1(char *host, char *clientFile)
 				printf("---Authorize Return response: %s\n", *result_1);
 
 				// APPROVE
-				approve_request_token_1_arg=(char *)malloc(50);
+				approve_request_token_1_arg = (char *)malloc(50);
 				strcpy(approve_request_token_1_arg, *result_1);
 				result_4 = approve_request_token_1(&approve_request_token_1_arg, clnt);
 				if (result_4 == (char **)NULL)
@@ -114,7 +114,7 @@ void oauth_1(char *host, char *clientFile)
 				request_access_token_1_arg.userId = (char *)malloc(50);
 				strcpy(request_access_token_1_arg.userId, userId.c_str());
 				request_access_token_1_arg.accessToken = (char *)malloc(50);
-				strcpy(request_access_token_1_arg.accessToken, *result_1);				
+				strcpy(request_access_token_1_arg.accessToken, *result_1);
 				result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
 				if (result_2 == (struct tokensPair *)NULL)
 				{
@@ -122,19 +122,36 @@ void oauth_1(char *host, char *clientFile)
 				}
 
 				printf("---Access Return response: %s %s %d\n", (*result_2).accessToken,
-					(*result_2).refreshToken, (*result_2).valability);
-					
+					   (*result_2).refreshToken, (*result_2).valability);
+
 				free(request_authorization_1_arg);
 				free(request_access_token_1_arg.userId);
 				free(request_access_token_1_arg.accessToken);
 			}
 		}
+		else
+		{
+			validate_delegated_action_1_arg.accessToken = (char *)malloc(50);
+			validate_delegated_action_1_arg.operation = (char *)malloc(50);
+			validate_delegated_action_1_arg.resource = (char *)malloc(50);
+			for (int i = 0; i < users.size(); i++)
+			{
+				if (strcmp(users[i].tokens.accessToken, userId.c_str()) == 0)
+				{
+					strcpy(validate_delegated_action_1_arg.accessToken, users[i].tokens.accessToken);
+					break;
+				}
+			}
+			strcpy(validate_delegated_action_1_arg.resource, resource.c_str());
+			strcpy(validate_delegated_action_1_arg.operation, operation.c_str());
+
+			result_3 = validate_delegated_action_1(&validate_delegated_action_1_arg, clnt);
+			if (result_3 == (char **)NULL)
+			{
+				clnt_perror(clnt, "call failed");
+			}
+		}
 	}
-	// result_3 = validate_delegated_action_1(&validate_delegated_action_1_arg, clnt);
-	// if (result_3 == (char **)NULL)
-	// {
-	// 	clnt_perror(clnt, "call failed");
-	// }
 	inputFile.close();
 #ifndef DEBUG
 	clnt_destroy(clnt);

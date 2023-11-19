@@ -38,6 +38,7 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 		{
 			return &result;
 		}
+
 		else
 		{
 			istringstream lineStream(line);
@@ -68,19 +69,21 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 			approvals[key] = perms;
 		}
 	}
-	cout<<"-----------------------------";
-	for (const auto& entry : approvals) {
-        const string& key = entry.first;
-        const vector<resourcesPerm>& value = entry.second;
+	cout << "-----------------------------";
+	for (const auto &entry : approvals)
+	{
+		const string &key = entry.first;
+		const vector<resourcesPerm> &value = entry.second;
 
-        cout << "Key: " << key << ", Values: ";
+		cout << "Key: " << key << ", Values: ";
 
-        for (const auto& perm : value) {
-            cout << perm.resource << " " << perm.permissions<< " ";
-        }
+		for (const auto &perm : value)
+		{
+			cout << perm.resource << " " << perm.permissions << " ";
+		}
 
-        cout << endl;
-    }
+		cout << endl;
+	}
 	return &result;
 }
 
@@ -123,10 +126,57 @@ char **
 validate_delegated_action_1_svc(struct handleResource *argp, struct svc_req *rqstp)
 {
 	static char *result;
+	result=(char*)malloc(50);
+	bool found=false;
 
-	/*
-	 * insert server code here
-	 */
+	for (int i = 0; i < users.size(); i++)
+	{
+		bool ok=false;
+		if (strcmp(users[i].tokens.accessToken, argp->accessToken) == 0)
+		{
+			found=true;
+			if (users[i].validatedToken == true)
+			{
+				if(users[i].tokens.valability==0){
+					strcpy(result, "TOKEN_EXPIRED");
+					break;
+				}
+				else{
+					string res(argp->resource);
+					vector<string>::iterator it;
+					it = find(resources.begin(), resources.end(), res);
+					if (it != resources.end()) {
+						for(int j=0;j<approvals[argp->accessToken].size();j++){
+							if(approvals[argp->accessToken][j].resource==argp->resource){
+								string perms(approvals[argp->accessToken][j].permissions);
+								string op(argp->operation);
+								if(perms.find(op)){
+									strcpy(result, "PERMISSION_GRANTED");
+									users[i].tokens.valability-=1;
+									ok=true;
+									break;
+								}
+								else{
+									strcpy(result, "OPERATION_NOT_PERMITED");
+									ok=true;
+									break;
+								}
+							}
+						}
+						if(ok){
+							break;
+						}
+					} else {
+						strcpy(result, "RESOURCE_NOT_FOUND");
+						break;
+					}
+				}
+			}
+		}
+	}
+	if(found=false){
+		strcpy(result, "PERMISSION_DENIED");
+	}
 
 	return &result;
 }
