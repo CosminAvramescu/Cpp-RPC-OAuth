@@ -7,8 +7,6 @@
 #include "tema.h"
 #include "token.h"
 
-map<string, vector<struct resourcesPerm>> approvals;
-
 char *generate_access_token(char *clientIdToken);
 
 char **
@@ -17,6 +15,33 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 	static char *result;
 	bool found = false;
 	result = (char *)malloc(50);
+	string line, token, resource, permissions;
+
+	if (!getline(inputFile4, line, '\n'))
+	{
+		return &result;
+	}
+	else
+	{
+		istringstream lineStream(line);
+		int i = 2;
+		while (getline(lineStream, token, ','))
+		{
+			switch (i % 2)
+			{
+			case 0:
+				resource = token;
+				break;
+			case 1:
+				permissions = token;
+				cout << "$$$HAHAHA" << resource << " " << permissions << endl;
+				break;
+			default:
+				break;
+			}
+			i++;
+		}
+	}
 
 	for (int i = 0; i < users.size(); i++)
 	{
@@ -31,56 +56,6 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 	{
 		strcpy(result, "USER NOT FOUND");
 	}
-	else
-	{
-		string line, token, resource, permissions;
-		if (!getline(inputFile4, line, '\n'))
-		{
-			return &result;
-		}
-		else
-		{
-			istringstream lineStream(line);
-			int i = 2;
-			vector<struct resourcesPerm> perms;
-			while (getline(lineStream, token, ','))
-			{
-				switch (i % 2)
-				{
-				case 0:
-					resource = token;
-					break;
-				case 1:
-					permissions = token;
-					struct resourcesPerm rp;
-					rp.resource = (char *)malloc(50);
-					rp.permissions = (char *)malloc(50);
-					strcpy(rp.resource, resource.c_str());
-					strcpy(rp.permissions, permissions.c_str());
-					perms.push_back(rp);
-					break;
-				default:
-					break;
-				}
-				i++;
-			}
-			string key(*argp);
-			approvals[key] = perms;
-		}
-	}
-	cout<<"-----------------------------";
-	for (const auto& entry : approvals) {
-        const string& key = entry.first;
-        const vector<resourcesPerm>& value = entry.second;
-
-        cout << "Key: " << key << ", Values: ";
-
-        for (const auto& perm : value) {
-            cout << perm.resource << " " << perm.permissions<< " ";
-        }
-
-        cout << endl;
-    }
 	return &result;
 }
 
@@ -111,7 +86,7 @@ request_access_token_1_svc(struct userPair *argp, struct svc_req *rqstp)
 			}
 			else
 			{
-				strcpy(result.error, "REQUEST_DENIED");
+				strcpy(result.accessToken, "REQUEST_DENIED");
 			}
 		}
 	}

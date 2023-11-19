@@ -2,6 +2,7 @@ struct tokensPair {
 	string accessToken<>;
 	string refreshToken<>;
     int valability;
+    string error<>;
 };
 struct user {
 	string userId<>;
@@ -16,6 +17,10 @@ struct handleResource{
 struct userPair{
     string userId<>;
     string accessToken<>;
+};
+struct resourcesPerm{
+    string resource<>;
+    string permissions<>;
 };
 program OAUTH {
     version OAUTHVERS {

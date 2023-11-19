@@ -25,7 +25,6 @@ struct tokensPair {
 	char *accessToken;
 	char *refreshToken;
 	int valability;
-	char *error;
 };
 typedef struct tokensPair tokensPair;
 
@@ -49,15 +48,9 @@ struct userPair {
 };
 typedef struct userPair userPair;
 
-struct resourcesPerm {
-	char *resource;
-	char *permissions;
-};
-typedef struct resourcesPerm resourcesPerm;
-
 extern vector<user> users;
 extern vector<string> resources;
-extern map<string, vector<struct resourcesPerm>> approvals;
+// extern map<string, string> approvals;
 extern int valability;
 extern ifstream inputFile4;
 
@@ -102,14 +95,12 @@ extern  bool_t xdr_tokensPair (XDR *, tokensPair*);
 extern  bool_t xdr_user (XDR *, user*);
 extern  bool_t xdr_handleResource (XDR *, handleResource*);
 extern  bool_t xdr_userPair (XDR *, userPair*);
-extern  bool_t xdr_resourcesPerm (XDR *, resourcesPerm*);
 
 #else /* K&R C */
 extern bool_t xdr_tokensPair ();
 extern bool_t xdr_user ();
 extern bool_t xdr_handleResource ();
 extern bool_t xdr_userPair ();
-extern bool_t xdr_resourcesPerm ();
 
 #endif /* K&R C */
 

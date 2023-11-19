@@ -16,8 +16,6 @@ xdr_tokensPair (XDR *xdrs, tokensPair *objp)
 		 return FALSE;
 	 if (!xdr_int (xdrs, &objp->valability))
 		 return FALSE;
-	 if (!xdr_string (xdrs, &objp->error, ~0))
-		 return FALSE;
 	return TRUE;
 }
 
@@ -57,18 +55,6 @@ xdr_userPair (XDR *xdrs, userPair *objp)
 	 if (!xdr_string (xdrs, &objp->userId, ~0))
 		 return FALSE;
 	 if (!xdr_string (xdrs, &objp->accessToken, ~0))
-		 return FALSE;
-	return TRUE;
-}
-
-bool_t
-xdr_resourcesPerm (XDR *xdrs, resourcesPerm *objp)
-{
-	register int32_t *buf;
-
-	 if (!xdr_string (xdrs, &objp->resource, ~0))
-		 return FALSE;
-	 if (!xdr_string (xdrs, &objp->permissions, ~0))
 		 return FALSE;
 	return TRUE;
 }
