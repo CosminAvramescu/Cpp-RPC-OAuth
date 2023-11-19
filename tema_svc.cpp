@@ -12,13 +12,14 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-
 #ifndef SIG_PF
 #define SIG_PF void (*)(int)
 #endif
 
 vector<user> users;
 vector<string> resources;
+int valability;
+ifstream inputFile4;
 
 static void
 oauth_1(struct svc_req *rqstp, register SVCXPRT *transp)
@@ -124,13 +125,8 @@ int main(int argc, char **argv)
 	strcpy(userIdFile, argv[1]);
 	strcpy(resourcesFile, argv[2]);
 	strcpy(approvalsFile, argv[3]);
-	if (argv[4])
-	{
-		valabilityFile = (char *)malloc(50);
-		strcpy(valabilityFile, argv[4]);
-		free(valabilityFile);
-	}
-	printf("%s	%s	%s\n", userIdFile, resourcesFile, approvalsFile);
+	valability = stoi(argv[4]);
+	printf("%s	%s	%s %d\n", userIdFile, resourcesFile, approvalsFile, valability);
 	ifstream inputFile1(userIdFile);
 
 	if (!inputFile1.is_open())
@@ -142,7 +138,7 @@ int main(int argc, char **argv)
 	string line;
 	getline(inputFile1, line, '\n');
 	int size = stoi(line);
-	for (int i=0;i<size;i++)
+	for (int i = 0; i < size; i++)
 	{
 		getline(inputFile1, line, '\n');
 		user u;
@@ -168,7 +164,7 @@ int main(int argc, char **argv)
 
 	getline(inputFile2, line, '\n');
 	size = stoi(line);
-	for (int i=0;i<size;i++)
+	for (int i = 0; i < size; i++)
 	{
 		getline(inputFile2, line, '\n');
 		resources.push_back(line);
@@ -181,6 +177,12 @@ int main(int argc, char **argv)
 		cout << resources[i] << endl;
 	}
 
+	inputFile4.open(approvalsFile);
+	if (!inputFile4.is_open())
+	{
+		cout << "erorr at opening file!";
+		return 0;
+	}
 	free(userIdFile);
 	free(resourcesFile);
 	free(approvalsFile);

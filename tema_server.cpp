@@ -7,7 +7,7 @@
 #include "tema.h"
 #include "token.h"
 
-char* generate_access_token(char* clientIdToken);
+char *generate_access_token(char *clientIdToken);
 
 char **
 request_authorization_1_svc(char **argp, struct svc_req *rqstp)
@@ -15,11 +15,40 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 	static char *result;
 	bool found = false;
 	result = (char *)malloc(50);
+	string line, token, resource, permissions;
+
+	if (!getline(inputFile4, line, '\n'))
+	{
+		return &result;
+	}
+	else
+	{
+		istringstream lineStream(line);
+		int i = 2;
+		while (getline(lineStream, token, ','))
+		{
+			switch (i % 2)
+			{
+			case 0:
+				resource = token;
+				break;
+			case 1:
+				permissions = token;
+				cout << "$$$HAHAHA" << resource << " " << permissions << endl;
+				break;
+			default:
+				break;
+			}
+			i++;
+		}
+	}
+
 	for (int i = 0; i < users.size(); i++)
 	{
 		if (strcmp(users[i].userId, *argp) == 0)
 		{
 			strcpy(result, generate_access_token(*argp));
+			users[i].tokens.accessToken = result;
 			found = true;
 		}
 	}
@@ -34,10 +63,33 @@ struct tokensPair *
 request_access_token_1_svc(struct userPair *argp, struct svc_req *rqstp)
 {
 	static struct tokensPair result;
+	result.accessToken = (char *)malloc(50);
+	result.refreshToken = (char *)malloc(50);
 
-	/*
-	 * insert server code here
-	 */
+	for (int i = 0; i < users.size(); i++)
+	{
+		if (strcmp(users[i].userId, argp->userId) == 0)
+		{
+			if (users[i].validatedToken == true)
+			{
+				users[i].tokens.accessToken = (char *)malloc(50);
+				users[i].tokens.refreshToken = (char *)malloc(50);
+				char *refreshToken = (char *)malloc(50);
+				strcpy(refreshToken, generate_access_token(argp->accessToken));
+				strcpy(users[i].tokens.accessToken, argp->accessToken);
+				strcpy(users[i].tokens.refreshToken, refreshToken);
+				users[i].tokens.valability = valability;
+				result.valability = valability;
+
+				strcpy(result.accessToken, argp->accessToken);
+				strcpy(result.refreshToken, refreshToken);
+			}
+			else
+			{
+				strcpy(result.accessToken, "REQUEST_DENIED");
+			}
+		}
+	}
 
 	return &result;
 }
@@ -58,10 +110,16 @@ char **
 approve_request_token_1_svc(char **argp, struct svc_req *rqstp)
 {
 	static char *result;
+	result = (char *)malloc(50);
 
-	/*
-	 * insert server code here
-	 */
+	for (int i = 0; i < users.size(); i++)
+	{
+		if (strcmp(users[i].tokens.accessToken, *argp) == 0)
+		{
+			users[i].validatedToken = true;
+			strcpy(result, *argp);
+		}
+	}
 
 	return &result;
 }

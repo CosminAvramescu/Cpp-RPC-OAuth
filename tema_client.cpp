@@ -59,32 +59,79 @@ void oauth_1(char *host, char *clientFile)
 
 		if (operation == "REQUEST")
 		{
-			cout << userId << " " << operation << " " << resource << endl;
-			request_authorization_1_arg = (char *)malloc(50);
-			strcpy(request_authorization_1_arg, userId.c_str());
-			result_1 = request_authorization_1(&request_authorization_1_arg, clnt);
-
-			if (result_1 == (char **)NULL)
+			if (stoi(resource) == 0)
 			{
-				clnt_perror(clnt, "call failed");
-			}
+				// AUTHORIZE
+				cout << userId << " " << operation << " " << resource << endl;
+				request_authorization_1_arg = (char *)malloc(50);
+				strcpy(request_authorization_1_arg, userId.c_str());
+				result_1 = request_authorization_1(&request_authorization_1_arg, clnt);
 
-			printf("\nReturn response: %s\n", *result_1);
-			free(request_authorization_1_arg);
+				if (result_1 == (char **)NULL)
+				{
+					clnt_perror(clnt, "call failed");
+				}
+
+				printf("---Authorize Return response: %s\n", *result_1);
+				free(request_authorization_1_arg);
+
+				// APPROVE
+				approve_request_token_1_arg=(char *)malloc(50);
+				strcpy(approve_request_token_1_arg, *result_1);
+				result_4 = approve_request_token_1(&approve_request_token_1_arg, clnt);
+				if (result_4 == (char **)NULL)
+				{
+					clnt_perror(clnt, "call failed");
+				}
+				printf("---Approved: %s\n", *result_4);
+			}
+			else if (stoi(resource) == 1)
+			{
+				// AUTHORIZE
+				cout << userId << " " << operation << " " << resource << endl;
+				request_authorization_1_arg = (char *)malloc(50);
+				strcpy(request_authorization_1_arg, userId.c_str());
+				result_1 = request_authorization_1(&request_authorization_1_arg, clnt);
+
+				if (result_1 == (char **)NULL)
+				{
+					clnt_perror(clnt, "call failed");
+				}
+
+				printf("---Authorize Return response: %s\n", *result_1);
+
+				// APPROVE
+				approve_request_token_1_arg=(char *)malloc(50);
+				strcpy(approve_request_token_1_arg, *result_1);
+				result_4 = approve_request_token_1(&approve_request_token_1_arg, clnt);
+				if (result_4 == (char **)NULL)
+				{
+					clnt_perror(clnt, "call failed");
+				}
+				printf("Approved: %s\n", *result_4);
+
+				// ACCESS
+				request_access_token_1_arg.userId = (char *)malloc(50);
+				strcpy(request_access_token_1_arg.userId, userId.c_str());
+				request_access_token_1_arg.accessToken = (char *)malloc(50);
+				strcpy(request_access_token_1_arg.accessToken, *result_1);				
+				result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
+				if (result_2 == (struct tokensPair *)NULL)
+				{
+					clnt_perror(clnt, "call failed");
+				}
+
+				printf("---Access Return response: %s %s %d\n", (*result_2).accessToken,
+					(*result_2).refreshToken, (*result_2).valability);
+					
+				free(request_authorization_1_arg);
+				free(request_access_token_1_arg.userId);
+				free(request_access_token_1_arg.accessToken);
+			}
 		}
 	}
-	// result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
-	// if (result_2 == (struct tokensPair *)NULL)
-	// {
-	// 	clnt_perror(clnt, "call failed");
-	// }
 	// result_3 = validate_delegated_action_1(&validate_delegated_action_1_arg, clnt);
 	// if (result_3 == (char **)NULL)
-	// {
-	// 	clnt_perror(clnt, "call failed");
-	// }
-	// result_4 = approve_request_token_1(&approve_request_token_1_arg, clnt);
-	// if (result_4 == (char **)NULL)
 	// {
 	// 	clnt_perror(clnt, "call failed");
 	// }

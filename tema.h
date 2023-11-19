@@ -9,6 +9,7 @@
 #include <rpc/rpc.h>
 #include <sstream>
 #include <vector>
+#include <map>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -49,6 +50,9 @@ typedef struct userPair userPair;
 
 extern vector<user> users;
 extern vector<string> resources;
+// extern map<string, string> approvals;
+extern int valability;
+extern ifstream inputFile4;
 
 #define OAUTH 0x31234567
 #define OAUTHVERS 1
