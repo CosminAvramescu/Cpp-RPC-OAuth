@@ -32,26 +32,26 @@ void oauth_1(char *host)
 		exit(1);
 	}
 #endif /* DEBUG */
-	result_1 = request_authorization_1(&request_authorization_1_arg, clnt);
-	if (result_1 == (char **)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
-	result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
-	if (result_2 == (struct tokensPair *)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
-	result_3 = validate_delegated_action_1(&validate_delegated_action_1_arg, clnt);
-	if (result_3 == (char **)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
-	result_4 = approve_request_token_1(&approve_request_token_1_arg, clnt);
-	if (result_4 == (char **)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
+	// result_1 = request_authorization_1(&request_authorization_1_arg, clnt);
+	// if (result_1 == (char **)NULL)
+	// {
+	// 	clnt_perror(clnt, "call failed");
+	// }
+	// result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
+	// if (result_2 == (struct tokensPair *)NULL)
+	// {
+	// 	clnt_perror(clnt, "call failed");
+	// }
+	// result_3 = validate_delegated_action_1(&validate_delegated_action_1_arg, clnt);
+	// if (result_3 == (char **)NULL)
+	// {
+	// 	clnt_perror(clnt, "call failed");
+	// }
+	// result_4 = approve_request_token_1(&approve_request_token_1_arg, clnt);
+	// if (result_4 == (char **)NULL)
+	// {
+	// 	clnt_perror(clnt, "call failed");
+	// }
 #ifndef DEBUG
 	clnt_destroy(clnt);
 #endif /* DEBUG */
@@ -67,44 +67,44 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	host = (char *)malloc(50);
-	// clientFile = (char *)malloc(50);
+	clientFile = (char *)malloc(50);
 	strcpy(host, argv[1]);
-	// strcpy(clientFile, argv[2]);
+	strcpy(clientFile, argv[2]);
 
-	// ifstream inputFile(clientFile);
+	ifstream inputFile(clientFile);
 
-	// if (!inputFile.is_open())
-	// {
-	// 	cout << "erorr at opening file!";
-	// 	return 0;
-	// }
+	if (!inputFile.is_open())
+	{
+		cout << "erorr at opening file!";
+		return 0;
+	}
 
-	// string line, token, userId, operation, resource;
-	// while (getline(inputFile, line, '\n'))
-	// {
-	// 	int i = 3;
-	// 	istringstream lineStream(line);
-	// 	while (getline(lineStream, token, ','))
-	// 	{
-	// 		switch (i % 3)
-	// 		{
-	// 		case 0:
-	// 			userId = token;
-	// 			break;
-	// 		case 1:
-	// 			operation = token;
-	// 			break;
-	// 		case 2:
-	// 			resource = token;
-	// 			cout<<userId<<" "<<operation<<" "<<resource<<endl;
-	// 			break;
-	// 		default:
-	// 			break;
-	// 		}
-	// 		i++;
-	// 	}
-	// }
-	// inputFile.close();
+	string line, token, userId, operation, resource;
+	while (getline(inputFile, line, '\n'))
+	{
+		int i = 3;
+		istringstream lineStream(line);
+		while (getline(lineStream, token, ','))
+		{
+			switch (i % 3)
+			{
+			case 0:
+				userId = token;
+				break;
+			case 1:
+				operation = token;
+				break;
+			case 2:
+				resource = token;
+				cout<<userId<<" "<<operation<<" "<<resource<<endl;
+				break;
+			default:
+				break;
+			}
+			i++;
+		}
+	}
+	inputFile.close();
 	oauth_1(host);
 	exit(0);
 }
