@@ -48,6 +48,7 @@ struct userPair {
 typedef struct userPair userPair;
 
 extern vector<user> users;
+extern vector<string> resources;
 
 #define OAUTH 0x31234567
 #define OAUTHVERS 1

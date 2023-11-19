@@ -6,8 +6,7 @@
 
 #include "tema.h"
 
-
-void oauth_1(char *host)
+void oauth_1(char *host, char *clientFile)
 {
 	CLIENT *clnt;
 	char **result_1;
@@ -27,51 +26,11 @@ void oauth_1(char *host)
 		exit(1);
 	}
 #endif /* DEBUG */
-	// result_1 = request_authorization_1(&request_authorization_1_arg, clnt);
-	// if (result_1 == (char **)NULL)
-	// {
-	// 	clnt_perror(clnt, "call failed");
-	// }
-	// result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
-	// if (result_2 == (struct tokensPair *)NULL)
-	// {
-	// 	clnt_perror(clnt, "call failed");
-	// }
-	// result_3 = validate_delegated_action_1(&validate_delegated_action_1_arg, clnt);
-	// if (result_3 == (char **)NULL)
-	// {
-	// 	clnt_perror(clnt, "call failed");
-	// }
-	// result_4 = approve_request_token_1(&approve_request_token_1_arg, clnt);
-	// if (result_4 == (char **)NULL)
-	// {
-	// 	clnt_perror(clnt, "call failed");
-	// }
-#ifndef DEBUG
-	clnt_destroy(clnt);
-#endif /* DEBUG */
-}
-
-int main(int argc, char *argv[])
-{
-	char *host, *clientFile;
-
-	if (argc < 2)
-	{
-		printf("usage: %s server_host\n", argv[0]);
-		exit(1);
-	}
-	host = (char *)malloc(50);
-	clientFile = (char *)malloc(50);
-	strcpy(host, argv[1]);
-	strcpy(clientFile, argv[2]);
-
 	ifstream inputFile(clientFile);
 
 	if (!inputFile.is_open())
 	{
 		cout << "erorr at opening file!";
-		return 0;
 	}
 
 	string line, token, userId, operation, resource;
@@ -91,15 +50,64 @@ int main(int argc, char *argv[])
 				break;
 			case 2:
 				resource = token;
-				cout<<userId<<" "<<operation<<" "<<resource<<endl;
 				break;
 			default:
 				break;
 			}
 			i++;
 		}
+
+		if (operation == "REQUEST")
+		{
+			cout << userId << " " << operation << " " << resource << endl;
+			request_authorization_1_arg = (char *)malloc(50);
+			strcpy(request_authorization_1_arg, userId.c_str());
+			result_1 = request_authorization_1(&request_authorization_1_arg, clnt);
+
+			if (result_1 == (char **)NULL)
+			{
+				clnt_perror(clnt, "call failed");
+			}
+
+			printf("\nReturn response: %s\n", *result_1);
+			free(request_authorization_1_arg);
+		}
 	}
+	// result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
+	// if (result_2 == (struct tokensPair *)NULL)
+	// {
+	// 	clnt_perror(clnt, "call failed");
+	// }
+	// result_3 = validate_delegated_action_1(&validate_delegated_action_1_arg, clnt);
+	// if (result_3 == (char **)NULL)
+	// {
+	// 	clnt_perror(clnt, "call failed");
+	// }
+	// result_4 = approve_request_token_1(&approve_request_token_1_arg, clnt);
+	// if (result_4 == (char **)NULL)
+	// {
+	// 	clnt_perror(clnt, "call failed");
+	// }
 	inputFile.close();
-	oauth_1(host);
+#ifndef DEBUG
+	clnt_destroy(clnt);
+#endif /* DEBUG */
+}
+
+int main(int argc, char *argv[])
+{
+	char *host, *clientFile;
+
+	if (argc < 2)
+	{
+		printf("usage: %s server_host\n", argv[0]);
+		exit(1);
+	}
+	host = (char *)malloc(50);
+	clientFile = (char *)malloc(50);
+	strcpy(host, argv[1]);
+	strcpy(clientFile, argv[2]);
+
+	oauth_1(host, clientFile);
 	exit(0);
 }

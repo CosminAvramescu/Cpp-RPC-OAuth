@@ -5,23 +5,35 @@
  */
 
 #include "tema.h"
+#include "token.h"
+
+char* generate_access_token(char* clientIdToken);
 
 char **
 request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 {
-	static char * result;
-
-	/*
-	 * insert server code here
-	 */
-
+	static char *result;
+	bool found = false;
+	result = (char *)malloc(50);
+	for (int i = 0; i < users.size(); i++)
+	{
+		if (strcmp(users[i].userId, *argp) == 0)
+		{
+			strcpy(result, generate_access_token(*argp));
+			found = true;
+		}
+	}
+	if (!found)
+	{
+		strcpy(result, "USER NOT FOUND");
+	}
 	return &result;
 }
 
 struct tokensPair *
 request_access_token_1_svc(struct userPair *argp, struct svc_req *rqstp)
 {
-	static struct tokensPair  result;
+	static struct tokensPair result;
 
 	/*
 	 * insert server code here
@@ -33,7 +45,7 @@ request_access_token_1_svc(struct userPair *argp, struct svc_req *rqstp)
 char **
 validate_delegated_action_1_svc(struct handleResource *argp, struct svc_req *rqstp)
 {
-	static char * result;
+	static char *result;
 
 	/*
 	 * insert server code here
@@ -45,7 +57,7 @@ validate_delegated_action_1_svc(struct handleResource *argp, struct svc_req *rqs
 char **
 approve_request_token_1_svc(char **argp, struct svc_req *rqstp)
 {
-	static char * result;
+	static char *result;
 
 	/*
 	 * insert server code here

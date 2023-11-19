@@ -18,6 +18,7 @@
 #endif
 
 vector<user> users;
+vector<string> resources;
 
 static void
 oauth_1(struct svc_req *rqstp, register SVCXPRT *transp)
@@ -127,39 +128,62 @@ int main(int argc, char **argv)
 	{
 		valabilityFile = (char *)malloc(50);
 		strcpy(valabilityFile, argv[4]);
+		free(valabilityFile);
 	}
 	printf("%s	%s	%s\n", userIdFile, resourcesFile, approvalsFile);
-	ifstream inputFile(userIdFile);
+	ifstream inputFile1(userIdFile);
 
-	if (!inputFile.is_open())
+	if (!inputFile1.is_open())
 	{
 		cout << "erorr at opening file!";
 		return 0;
 	}
 
 	string line;
-	getline(inputFile, line, '\n');
+	getline(inputFile1, line, '\n');
 	int size = stoi(line);
 	for (int i=0;i<size;i++)
 	{
-		getline(inputFile, line, '\n');
+		getline(inputFile1, line, '\n');
 		user u;
 		u.userId = (char *)malloc(20);
 		strcpy(u.userId, line.c_str());
 		users.push_back(u);
 	}
 
-	inputFile.close();
+	inputFile1.close();
 
 	for (int i = 0; i < users.size(); i++)
 	{
 		cout << users[i].userId << endl;
 	}
 
+	ifstream inputFile2(resourcesFile);
+
+	if (!inputFile2.is_open())
+	{
+		cout << "erorr at opening file!";
+		return 0;
+	}
+
+	getline(inputFile2, line, '\n');
+	size = stoi(line);
+	for (int i=0;i<size;i++)
+	{
+		getline(inputFile2, line, '\n');
+		resources.push_back(line);
+	}
+
+	inputFile2.close();
+
+	for (int i = 0; i < resources.size(); i++)
+	{
+		cout << resources[i] << endl;
+	}
+
 	free(userIdFile);
 	free(resourcesFile);
 	free(approvalsFile);
-	free(valabilityFile);
 
 	svc_run();
 	fprintf(stderr, "%s", "svc_run returned");
