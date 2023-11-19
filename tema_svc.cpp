@@ -11,13 +11,7 @@
 #include <memory.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <sstream>
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <string>
 
-using namespace std;
 
 #ifndef SIG_PF
 #define SIG_PF void (*)(int)

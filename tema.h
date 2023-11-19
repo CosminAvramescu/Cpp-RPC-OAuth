@@ -7,7 +7,13 @@
 #define _TEMA_H_RPCGEN
 
 #include <rpc/rpc.h>
+#include <sstream>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <string>
 
+using namespace std;
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,6 +46,8 @@ struct userPair {
 	char *accessToken;
 };
 typedef struct userPair userPair;
+
+extern vector<user> users;
 
 #define OAUTH 0x31234567
 #define OAUTHVERS 1

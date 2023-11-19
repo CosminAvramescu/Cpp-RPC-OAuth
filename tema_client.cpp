@@ -5,12 +5,7 @@
  */
 
 #include "tema.h"
-#include <sstream>
-#include <vector>
-#include <iostream>
-#include <fstream>
 
-using namespace std;
 
 void oauth_1(char *host)
 {
