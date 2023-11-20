@@ -59,6 +59,8 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 					strcpy(rp.resource, resource.c_str());
 					strcpy(rp.permissions, permissions.c_str());
 					perms.push_back(rp);
+					free(rp.resource);
+					free(rp.permissions);
 					break;
 				default:
 					break;
@@ -69,21 +71,21 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 			approvals[key] = perms;
 		}
 	}
-	cout << "-----------------------------";
-	for (const auto &entry : approvals)
-	{
-		const string &key = entry.first;
-		const vector<resourcesPerm> &value = entry.second;
+	// cout << "-----------------------------";
+	// for (const auto &entry : approvals)
+	// {
+	// 	const string &key = entry.first;
+	// 	const vector<resourcesPerm> &value = entry.second;
 
-		cout << "Key: " << key << ", Values: ";
+	// 	cout << "Key: " << key << ", Values: ";
 
-		for (const auto &perm : value)
-		{
-			cout << perm.resource << " " << perm.permissions << " ";
-		}
+	// 	for (const auto &perm : value)
+	// 	{
+	// 		cout << perm.resource << " " << perm.permissions << " ";
+	// 	}
 
-		cout << endl;
-	}
+	// 	cout << endl;
+	// }
 	return &result;
 }
 
@@ -93,6 +95,7 @@ request_access_token_1_svc(struct userPair *argp, struct svc_req *rqstp)
 	static struct tokensPair result;
 	result.accessToken = (char *)malloc(50);
 	result.refreshToken = (char *)malloc(50);
+	result.error=(char*)malloc(50);
 
 	for (int i = 0; i < users.size(); i++)
 	{
@@ -195,6 +198,7 @@ approve_request_token_1_svc(char **argp, struct svc_req *rqstp)
 			strcpy(result, *argp);
 		}
 	}
+	strcpy(result, *argp);
 
 	return &result;
 }

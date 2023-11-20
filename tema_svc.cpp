@@ -126,7 +126,7 @@ int main(int argc, char **argv)
 	strcpy(resourcesFile, argv[2]);
 	strcpy(approvalsFile, argv[3]);
 	valability = stoi(argv[4]);
-	printf("%s	%s	%s %d\n", userIdFile, resourcesFile, approvalsFile, valability);
+	// printf("%s	%s	%s %d\n", userIdFile, resourcesFile, approvalsFile, valability);
 	ifstream inputFile1(userIdFile);
 
 	if (!inputFile1.is_open())
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
 
 	for (int i = 0; i < users.size(); i++)
 	{
-		cout << users[i].userId << endl;
+		// cout << users[i].userId << endl;
 	}
 
 	ifstream inputFile2(resourcesFile);
@@ -174,7 +174,7 @@ int main(int argc, char **argv)
 
 	for (int i = 0; i < resources.size(); i++)
 	{
-		cout << resources[i] << endl;
+		// cout << resources[i] << endl;
 	}
 
 	inputFile4.open(approvalsFile);
