@@ -63,6 +63,7 @@ void oauth_1(char *host, char *clientFile)
 		{
 			if (stoi(resource) == 0)
 			{
+				// AUTHORIZE
 				request_authorization_1_arg = (char *)malloc(50);
 				strcpy(request_authorization_1_arg, userId.c_str());
 				result_1 = request_authorization_1(&request_authorization_1_arg, clnt);
@@ -71,32 +72,50 @@ void oauth_1(char *host, char *clientFile)
 				{
 					clnt_perror(clnt, "call failed");
 				}
-
-				printf("---Authorize Return response: %s\n", *result_1);
+				// printf("---Authorize Return response: %s\n", *result_1);
 
 				// // APPROVE
-				approve_request_token_1_arg=(char *)malloc(50);
+				approve_request_token_1_arg = (char *)malloc(50);
 				strcpy(approve_request_token_1_arg, *result_1);
 				result_4 = approve_request_token_1(&approve_request_token_1_arg, clnt);
 				if (result_4 == (char **)NULL)
 				{
 					clnt_perror(clnt, "call failed");
 				}
-				printf("---Approved: %s\n", *result_4);
+				// printf("---Approved: %s\n", *result_4);
 
 				// ACCESS
 				request_access_token_1_arg.userId = (char *)malloc(50);
 				strcpy(request_access_token_1_arg.userId, userId.c_str());
 				request_access_token_1_arg.accessToken = (char *)malloc(50);
-				strcpy(request_access_token_1_arg.accessToken, *result_1);				
+				strcpy(request_access_token_1_arg.accessToken, *result_1);
 				result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
 				if (result_2 == (struct tokensPair *)NULL)
 				{
 					clnt_perror(clnt, "call failed");
 				}
+				
+				if (strcmp(*result_1, "USER_NOT_FOUND") == 0)
+				{
+					printf("%s\n", *result_1);
+				}
+				else
+				{
+					if(strcmp(result_2->error, "REQUEST_DENIED") == 0){
+						printf("%s\n", result_2->error);
+					}
+					else{
+						printf("%s", *result_1);
+						printf(" -> %s\n", result_2->refreshToken);
+					}
+				}
+				// if (strcmp(result_2->error, "REQUEST_DENIED")==0)
+				// {
+					// printf("%s\n", result_2->error);
+				// }
 
-				printf("---Access Return response: %s %s %s %d\n", (*result_2).error, (*result_2).accessToken,
-					(*result_2).refreshToken, (*result_2).valability);
+				// printf("---Access Return response: %s %s %s %d\n", (*result_2).error, (*result_2).accessToken,
+				// 	(*result_2).refreshToken, (*result_2).valability);
 
 				free(request_authorization_1_arg);
 				free(approve_request_token_1_arg);

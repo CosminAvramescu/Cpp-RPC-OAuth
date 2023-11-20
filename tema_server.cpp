@@ -18,6 +18,7 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 	bool found = false;
 	result = (char *)malloc(50);
 
+	printf("BEGIN %s AUTHZ\n", *argp);
 	for (int i = 0; i < users.size(); i++)
 	{
 		if (strcmp(users[i].userId, *argp) == 0)
@@ -29,7 +30,7 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 	}
 	if (!found)
 	{
-		strcpy(result, "USER NOT FOUND");
+		strcpy(result, "USER_NOT_FOUND");
 	}
 	else
 	{
@@ -38,7 +39,6 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 		{
 			return &result;
 		}
-
 		else
 		{
 			istringstream lineStream(line);
@@ -54,21 +54,28 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 				case 1:
 					permissions = token;
 					struct resourcesPerm rp;
+					// if (rp.resource!=NULL)
+					// {
+					// 	free(rp.resource);
+					// }
+					// if (rp.permissions)
+					// {
+					// 	free(rp.permissions);
+					// }
 					rp.resource = (char *)malloc(50);
 					rp.permissions = (char *)malloc(50);
 					strcpy(rp.resource, resource.c_str());
 					strcpy(rp.permissions, permissions.c_str());
 					perms.push_back(rp);
-					free(rp.resource);
-					free(rp.permissions);
 					break;
 				default:
 					break;
 				}
 				i++;
 			}
-			string key(*argp);
+			string key(result);
 			approvals[key] = perms;
+			printf("  RequestToken = %s\n", result);
 		}
 	}
 	// cout << "-----------------------------";
@@ -95,14 +102,22 @@ request_access_token_1_svc(struct userPair *argp, struct svc_req *rqstp)
 	static struct tokensPair result;
 	result.accessToken = (char *)malloc(50);
 	result.refreshToken = (char *)malloc(50);
-	result.error=(char*)malloc(50);
+	result.error = (char *)malloc(50);
 
 	for (int i = 0; i < users.size(); i++)
 	{
-		if (strcmp(users[i].userId, argp->userId) == 0)
+		if (strcmp(users[i].tokens.accessToken, argp->accessToken) == 0)
 		{
 			if (users[i].validatedToken == true)
 			{
+				// if (users[i].tokens.accessToken!=NULL)
+				// {
+				// 	free(users[i].tokens.accessToken);
+				// }
+				// if (users[i].tokens.refreshToken!=NULL)
+				// {
+				// 	free(users[i].tokens.refreshToken);
+				// }
 				users[i].tokens.accessToken = (char *)malloc(50);
 				users[i].tokens.refreshToken = (char *)malloc(50);
 				char *refreshToken = (char *)malloc(50);
@@ -114,6 +129,9 @@ request_access_token_1_svc(struct userPair *argp, struct svc_req *rqstp)
 
 				strcpy(result.accessToken, argp->accessToken);
 				strcpy(result.refreshToken, refreshToken);
+				printf("  AccessToken = %s\n", result.refreshToken);
+				free(refreshToken);
+				break;
 			}
 			else
 			{
@@ -129,47 +147,57 @@ char **
 validate_delegated_action_1_svc(struct handleResource *argp, struct svc_req *rqstp)
 {
 	static char *result;
-	result=(char*)malloc(50);
-	bool found=false;
+	result = (char *)malloc(50);
+	bool found = false;
 
 	for (int i = 0; i < users.size(); i++)
 	{
-		bool ok=false;
+		bool ok = false;
 		if (strcmp(users[i].tokens.accessToken, argp->accessToken) == 0)
 		{
-			found=true;
+			found = true;
 			if (users[i].validatedToken == true)
 			{
-				if(users[i].tokens.valability==0){
+				if (users[i].tokens.valability == 0)
+				{
 					strcpy(result, "TOKEN_EXPIRED");
 					break;
 				}
-				else{
+				else
+				{
 					string res(argp->resource);
 					vector<string>::iterator it;
 					it = find(resources.begin(), resources.end(), res);
-					if (it != resources.end()) {
-						for(int j=0;j<approvals[argp->accessToken].size();j++){
-							if(approvals[argp->accessToken][j].resource==argp->resource){
+					if (it != resources.end())
+					{
+						for (int j = 0; j < approvals[argp->accessToken].size(); j++)
+						{
+							if (approvals[argp->accessToken][j].resource == argp->resource)
+							{
 								string perms(approvals[argp->accessToken][j].permissions);
 								string op(argp->operation);
-								if(perms.find(op)){
+								if (perms.find(op))
+								{
 									strcpy(result, "PERMISSION_GRANTED");
-									users[i].tokens.valability-=1;
-									ok=true;
+									users[i].tokens.valability -= 1;
+									ok = true;
 									break;
 								}
-								else{
+								else
+								{
 									strcpy(result, "OPERATION_NOT_PERMITED");
-									ok=true;
+									ok = true;
 									break;
 								}
 							}
 						}
-						if(ok){
+						if (ok)
+						{
 							break;
 						}
-					} else {
+					}
+					else
+					{
 						strcpy(result, "RESOURCE_NOT_FOUND");
 						break;
 					}
@@ -177,7 +205,8 @@ validate_delegated_action_1_svc(struct handleResource *argp, struct svc_req *rqs
 			}
 		}
 	}
-	if(found=false){
+	if (found = false)
+	{
 		strcpy(result, "PERMISSION_DENIED");
 	}
 
@@ -189,13 +218,34 @@ approve_request_token_1_svc(char **argp, struct svc_req *rqstp)
 {
 	static char *result;
 	result = (char *)malloc(50);
+	bool found = false;
 
-	for (int i = 0; i < users.size(); i++)
+	for (auto entry : approvals)
 	{
-		if (strcmp(users[i].tokens.accessToken, *argp) == 0)
+		string key(entry.first);
+		const vector<resourcesPerm> value = entry.second;
+		string s(*argp);
+		if (s == key && strcmp(value[0].resource, "*") == 0 && strcmp(value[0].permissions, "-") == 0)
 		{
-			users[i].validatedToken = true;
-			strcpy(result, *argp);
+			for (int j = 0; j < users.size(); j++)
+			{
+				if (strcmp(users[j].tokens.accessToken, *argp) == 0)
+				{
+					users[j].validatedToken = false;
+					found = true;
+				}
+			}
+		}
+	}
+
+	if (!found)
+	{
+		for (int j = 0; j < users.size(); j++)
+		{
+			if (strcmp(users[j].tokens.accessToken, *argp) == 0)
+			{
+				users[j].validatedToken = true;
+			}
 		}
 	}
 	strcpy(result, *argp);

@@ -187,6 +187,7 @@ int main(int argc, char **argv)
 	free(resourcesFile);
 	free(approvalsFile);
 
+	setbuf(stdout, NULL);
 	svc_run();
 	fprintf(stderr, "%s", "svc_run returned");
 	exit(1);
