@@ -144,6 +144,7 @@ int main(int argc, char **argv)
 		user u;
 		u.userId = (char *)malloc(20);
 		strcpy(u.userId, line.c_str());
+		u.tokens.accessToken = (char *)malloc(50);
 		users.push_back(u);
 	}
 

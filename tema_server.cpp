@@ -24,7 +24,7 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 		if (strcmp(users[i].userId, *argp) == 0)
 		{
 			strcpy(result, generate_access_token(*argp));
-			users[i].tokens.accessToken = result;
+			strcpy(users[i].tokens.accessToken, result);
 			found = true;
 		}
 	}
@@ -54,14 +54,6 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 				case 1:
 					permissions = token;
 					struct resourcesPerm rp;
-					// if (rp.resource!=NULL)
-					// {
-					// 	free(rp.resource);
-					// }
-					// if (rp.permissions)
-					// {
-					// 	free(rp.permissions);
-					// }
 					rp.resource = (char *)malloc(50);
 					rp.permissions = (char *)malloc(50);
 					strcpy(rp.resource, resource.c_str());
@@ -110,15 +102,6 @@ request_access_token_1_svc(struct userPair *argp, struct svc_req *rqstp)
 		{
 			if (users[i].validatedToken == true)
 			{
-				// if (users[i].tokens.accessToken!=NULL)
-				// {
-				// 	free(users[i].tokens.accessToken);
-				// }
-				// if (users[i].tokens.refreshToken!=NULL)
-				// {
-				// 	free(users[i].tokens.refreshToken);
-				// }
-				users[i].tokens.accessToken = (char *)malloc(50);
 				users[i].tokens.refreshToken = (char *)malloc(50);
 				char *refreshToken = (char *)malloc(50);
 				strcpy(refreshToken, generate_access_token(argp->accessToken));
@@ -148,18 +131,23 @@ validate_delegated_action_1_svc(struct handleResource *argp, struct svc_req *rqs
 {
 	static char *result;
 	result = (char *)malloc(50);
+	strcpy(result, "\0");
 	bool found = false;
+	int valability = 0;
+	char refreshToken[50];
 
 	for (int i = 0; i < users.size(); i++)
 	{
 		bool ok = false;
 		if (strcmp(users[i].tokens.accessToken, argp->accessToken) == 0)
 		{
+			strcpy(refreshToken, users[i].tokens.refreshToken);
 			found = true;
 			if (users[i].validatedToken == true)
 			{
 				if (users[i].tokens.valability == 0)
 				{
+					printf("DENY (%s,%s,%s,%d)\n", argp->operation, argp->resource, valability==0?"":refreshToken, users[i].tokens.valability);
 					strcpy(result, "TOKEN_EXPIRED");
 					break;
 				}
@@ -172,20 +160,25 @@ validate_delegated_action_1_svc(struct handleResource *argp, struct svc_req *rqs
 					{
 						for (int j = 0; j < approvals[argp->accessToken].size(); j++)
 						{
-							if (approvals[argp->accessToken][j].resource == argp->resource)
+							if (strcmp(approvals[argp->accessToken][j].resource, argp->resource) == 0)
 							{
 								string perms(approvals[argp->accessToken][j].permissions);
 								string op(argp->operation);
-								if (perms.find(op))
+								if (perms.find(op.at(strcmp(argp->operation, "EXECUTE") == 0 ? 1 : 0)) != string::npos)
 								{
+									users[i].tokens.valability--;
+									valability = users[i].tokens.valability;
+									printf("PERMIT (%s,%s,%s,%d)\n", argp->operation, argp->resource, refreshToken, users[i].tokens.valability);
 									strcpy(result, "PERMISSION_GRANTED");
-									users[i].tokens.valability -= 1;
 									ok = true;
 									break;
 								}
 								else
 								{
-									strcpy(result, "OPERATION_NOT_PERMITED");
+									users[i].tokens.valability--;
+									valability = users[i].tokens.valability;
+									printf("DENY (%s,%s,%s,%d)\n", argp->operation, argp->resource, refreshToken, users[i].tokens.valability);
+									strcpy(result, "OPERATION_NOT_PERMITTED");
 									ok = true;
 									break;
 								}
@@ -198,6 +191,9 @@ validate_delegated_action_1_svc(struct handleResource *argp, struct svc_req *rqs
 					}
 					else
 					{
+						users[i].tokens.valability--;
+						valability = users[i].tokens.valability;
+						printf("DENY (%s,%s,%s,%d)\n", argp->operation, argp->resource, valability==0?"":refreshToken, users[i].tokens.valability);
 						strcpy(result, "RESOURCE_NOT_FOUND");
 						break;
 					}
@@ -205,9 +201,23 @@ validate_delegated_action_1_svc(struct handleResource *argp, struct svc_req *rqs
 			}
 		}
 	}
-	if (found = false)
+	if (found == false)
 	{
+		printf("DENY (%s,%s,%s,%d)\n", argp->operation, argp->resource, valability==0?"":refreshToken, valability);
 		strcpy(result, "PERMISSION_DENIED");
+	}
+	else if (strlen(result) == 0)
+	{
+		for (int i = 0; i < users.size(); i++)
+		{
+			if (strcmp(users[i].tokens.accessToken, argp->accessToken) == 0)
+			{
+				users[i].tokens.valability--;
+				valability = users[i].tokens.valability;
+			}
+		}
+		printf("DENY (%s,%s,%s,%d)\n", argp->operation, argp->resource, refreshToken, valability);
+		strcpy(result, "OPERATION_NOT_PERMITTED");
 	}
 
 	return &result;
@@ -233,11 +243,15 @@ approve_request_token_1_svc(char **argp, struct svc_req *rqstp)
 				{
 					users[j].validatedToken = false;
 					found = true;
+					break;
 				}
 			}
 		}
+		if (found)
+		{
+			break;
+		}
 	}
-
 	if (!found)
 	{
 		for (int j = 0; j < users.size(); j++)
@@ -245,6 +259,7 @@ approve_request_token_1_svc(char **argp, struct svc_req *rqstp)
 			if (strcmp(users[j].tokens.accessToken, *argp) == 0)
 			{
 				users[j].validatedToken = true;
+				break;
 			}
 		}
 	}
