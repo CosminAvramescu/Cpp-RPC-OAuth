@@ -24,7 +24,7 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 		if (strcmp(users[i].userId, *argp) == 0)
 		{
 			strcpy(result, generate_access_token(*argp));
-			strcpy(users[i].tokens.accessToken, result);
+			strcpy(users[i].tokens.requestToken, result);
 			found = true;
 		}
 	}
@@ -92,33 +92,36 @@ struct tokensPair *
 request_access_token_1_svc(struct userPair *argp, struct svc_req *rqstp)
 {
 	static struct tokensPair result;
+	result.requestToken = (char *)malloc(50);
 	result.accessToken = (char *)malloc(50);
 	result.refreshToken = (char *)malloc(50);
 	result.error = (char *)malloc(50);
 
 	for (int i = 0; i < users.size(); i++)
 	{
-		if (strcmp(users[i].tokens.accessToken, argp->accessToken) == 0)
+		if (strcmp(users[i].userId, argp->userId) == 0)
 		{
 			if (users[i].validatedToken == true)
 			{
-				users[i].tokens.refreshToken = (char *)malloc(50);
-				char *refreshToken = (char *)malloc(50);
-				strcpy(refreshToken, generate_access_token(argp->accessToken));
-				strcpy(users[i].tokens.accessToken, argp->accessToken);
-				strcpy(users[i].tokens.refreshToken, refreshToken);
+				users[i].tokens.accessToken = (char *)malloc(50);
+				// users[i].tokens.refreshToken = (char *)malloc(50);
+				char *accessToken = (char *)malloc(50);
+				strcpy(accessToken, generate_access_token(argp->requestToken));
+				// strcpy(users[i].tokens.requestToken, requestToken);
+				strcpy(users[i].tokens.accessToken, accessToken);
 				users[i].tokens.valability = valability;
 				result.valability = valability;
 
-				strcpy(result.accessToken, argp->accessToken);
-				strcpy(result.refreshToken, refreshToken);
-				printf("  AccessToken = %s\n", result.refreshToken);
-				free(refreshToken);
+				// strcpy(result.refreshToken, refreshToken);
+				strcpy(result.accessToken, accessToken);
+				printf("  AccessToken = %s\n", result.accessToken);
+				free(accessToken);
 				break;
 			}
 			else
 			{
 				strcpy(result.error, "REQUEST_DENIED");
+				break;
 			}
 		}
 	}
@@ -134,20 +137,20 @@ validate_delegated_action_1_svc(struct handleResource *argp, struct svc_req *rqs
 	strcpy(result, "\0");
 	bool found = false;
 	int valability = 0;
-	char refreshToken[50];
+	char accessToken[50];
 
 	for (int i = 0; i < users.size(); i++)
 	{
 		bool ok = false;
-		if (strcmp(users[i].tokens.accessToken, argp->accessToken) == 0)
+		if (strcmp(users[i].tokens.accessToken, argp->accessToken) == 0 && (strlen(argp->accessToken) != 0 || strlen(argp->accessToken) != 0))
 		{
-			strcpy(refreshToken, users[i].tokens.refreshToken);
+			strcpy(accessToken, argp->accessToken);
 			found = true;
 			if (users[i].validatedToken == true)
 			{
 				if (users[i].tokens.valability == 0)
 				{
-					printf("DENY (%s,%s,%s,%d)\n", argp->operation, argp->resource, valability==0?"":refreshToken, users[i].tokens.valability);
+					printf("DENY (%s,%s,%s,%d)\n", argp->operation, argp->resource, valability == 0 ? "" : accessToken, users[i].tokens.valability);
 					strcpy(result, "TOKEN_EXPIRED");
 					break;
 				}
@@ -158,17 +161,17 @@ validate_delegated_action_1_svc(struct handleResource *argp, struct svc_req *rqs
 					it = find(resources.begin(), resources.end(), res);
 					if (it != resources.end())
 					{
-						for (int j = 0; j < approvals[argp->accessToken].size(); j++)
+						for (int j = 0; j < approvals[users[i].tokens.requestToken].size(); j++)
 						{
-							if (strcmp(approvals[argp->accessToken][j].resource, argp->resource) == 0)
+							if (strcmp(approvals[users[i].tokens.requestToken][j].resource, argp->resource) == 0)
 							{
-								string perms(approvals[argp->accessToken][j].permissions);
+								string perms(approvals[users[i].tokens.requestToken][j].permissions);
 								string op(argp->operation);
 								if (perms.find(op.at(strcmp(argp->operation, "EXECUTE") == 0 ? 1 : 0)) != string::npos)
 								{
 									users[i].tokens.valability--;
 									valability = users[i].tokens.valability;
-									printf("PERMIT (%s,%s,%s,%d)\n", argp->operation, argp->resource, refreshToken, users[i].tokens.valability);
+									printf("PERMIT (%s,%s,%s,%d)\n", argp->operation, argp->resource, accessToken, users[i].tokens.valability);
 									strcpy(result, "PERMISSION_GRANTED");
 									ok = true;
 									break;
@@ -177,7 +180,7 @@ validate_delegated_action_1_svc(struct handleResource *argp, struct svc_req *rqs
 								{
 									users[i].tokens.valability--;
 									valability = users[i].tokens.valability;
-									printf("DENY (%s,%s,%s,%d)\n", argp->operation, argp->resource, refreshToken, users[i].tokens.valability);
+									printf("DENY (%s,%s,%s,%d)\n", argp->operation, argp->resource, accessToken, users[i].tokens.valability);
 									strcpy(result, "OPERATION_NOT_PERMITTED");
 									ok = true;
 									break;
@@ -193,7 +196,7 @@ validate_delegated_action_1_svc(struct handleResource *argp, struct svc_req *rqs
 					{
 						users[i].tokens.valability--;
 						valability = users[i].tokens.valability;
-						printf("DENY (%s,%s,%s,%d)\n", argp->operation, argp->resource, valability==0?"":refreshToken, users[i].tokens.valability);
+						printf("DENY (%s,%s,%s,%d)\n", argp->operation, argp->resource, valability == 0 ? "" : accessToken, users[i].tokens.valability);
 						strcpy(result, "RESOURCE_NOT_FOUND");
 						break;
 					}
@@ -203,21 +206,24 @@ validate_delegated_action_1_svc(struct handleResource *argp, struct svc_req *rqs
 	}
 	if (found == false)
 	{
-		printf("DENY (%s,%s,%s,%d)\n", argp->operation, argp->resource, valability==0?"":refreshToken, valability);
+		printf("DENY (%s,%s,%s,%d)\n", argp->operation, argp->resource, valability == 0 ? "" : accessToken, valability);
 		strcpy(result, "PERMISSION_DENIED");
 	}
-	else if (strlen(result) == 0)
+	else
 	{
-		for (int i = 0; i < users.size(); i++)
+		if (strlen(result) == 0)
 		{
-			if (strcmp(users[i].tokens.accessToken, argp->accessToken) == 0)
+			for (int i = 0; i < users.size(); i++)
 			{
-				users[i].tokens.valability--;
-				valability = users[i].tokens.valability;
+				if (strcmp(users[i].tokens.accessToken, argp->accessToken) == 0)
+				{
+					users[i].tokens.valability--;
+					valability = users[i].tokens.valability;
+				}
 			}
+			printf("DENY (%s,%s,%s,%d)\n", argp->operation, argp->resource, accessToken, valability);
+			strcpy(result, "OPERATION_NOT_PERMITTED");
 		}
-		printf("DENY (%s,%s,%s,%d)\n", argp->operation, argp->resource, refreshToken, valability);
-		strcpy(result, "OPERATION_NOT_PERMITTED");
 	}
 
 	return &result;
@@ -239,7 +245,7 @@ approve_request_token_1_svc(char **argp, struct svc_req *rqstp)
 		{
 			for (int j = 0; j < users.size(); j++)
 			{
-				if (strcmp(users[j].tokens.accessToken, *argp) == 0)
+				if (strcmp(users[j].tokens.requestToken, *argp) == 0)
 				{
 					users[j].validatedToken = false;
 					found = true;
@@ -256,7 +262,7 @@ approve_request_token_1_svc(char **argp, struct svc_req *rqstp)
 	{
 		for (int j = 0; j < users.size(); j++)
 		{
-			if (strcmp(users[j].tokens.accessToken, *argp) == 0)
+			if (strcmp(users[j].tokens.requestToken, *argp) == 0)
 			{
 				users[j].validatedToken = true;
 				break;

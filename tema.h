@@ -23,6 +23,7 @@ extern "C" {
 
 
 struct tokensPair {
+	char *requestToken;
 	char *accessToken;
 	char *refreshToken;
 	int valability;
@@ -46,7 +47,7 @@ typedef struct handleResource handleResource;
 
 struct userPair {
 	char *userId;
-	char *accessToken;
+	char *requestToken;
 };
 typedef struct userPair userPair;
 

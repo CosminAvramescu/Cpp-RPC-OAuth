@@ -85,8 +85,9 @@ void oauth_1(char *host, char *clientFile)
 				// ACCESS
 				request_access_token_1_arg.userId = (char *)malloc(50);
 				strcpy(request_access_token_1_arg.userId, userId.c_str());
-				request_access_token_1_arg.accessToken = (char *)malloc(50);
-				strcpy(request_access_token_1_arg.accessToken, *result_1);
+				request_access_token_1_arg.requestToken = (char *)malloc(50);
+				strcpy(request_access_token_1_arg.requestToken, *result_1);
+
 				result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
 				if (result_2 == (struct tokensPair *)NULL)
 				{
@@ -99,7 +100,7 @@ void oauth_1(char *host, char *clientFile)
 				}
 				else
 				{
-					string accT(*result_1);
+					string accT((*result_2).accessToken);
 					userData[userId]=accT;
 					if (strcmp(result_2->error, "REQUEST_DENIED") == 0)
 					{
@@ -108,14 +109,14 @@ void oauth_1(char *host, char *clientFile)
 					else
 					{
 						printf("%s", *result_1);
-						printf(" -> %s\n", result_2->refreshToken);
+						printf(" -> %s\n", result_2->accessToken);
 					}
 				}
 
 				free(request_authorization_1_arg);
 				free(approve_request_token_1_arg);
 				free(request_access_token_1_arg.userId);
-				free(request_access_token_1_arg.accessToken);
+				free(request_access_token_1_arg.requestToken);
 				free(*result_1);
 				free(result_2->accessToken);
 				free(result_2->refreshToken);
@@ -133,7 +134,6 @@ void oauth_1(char *host, char *clientFile)
 				{
 					clnt_perror(clnt, "call failed");
 				}
-				// printf("---Authorize Return response: %s\n", *result_1);
 
 				// APPROVE
 				approve_request_token_1_arg = (char *)malloc(50);
@@ -143,13 +143,13 @@ void oauth_1(char *host, char *clientFile)
 				{
 					clnt_perror(clnt, "call failed");
 				}
-				// printf("---Approved: %s\n", *result_4);
 
 				// ACCESS
 				request_access_token_1_arg.userId = (char *)malloc(50);
 				strcpy(request_access_token_1_arg.userId, userId.c_str());
-				request_access_token_1_arg.accessToken = (char *)malloc(50);
-				strcpy(request_access_token_1_arg.accessToken, *result_1);
+				request_access_token_1_arg.requestToken = (char *)malloc(50);
+				strcpy(request_access_token_1_arg.requestToken, *result_1);
+
 				result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
 				if (result_2 == (struct tokensPair *)NULL)
 				{
@@ -162,6 +162,8 @@ void oauth_1(char *host, char *clientFile)
 				}
 				else
 				{
+					string accT((*result_2).accessToken);
+					userData[userId]=accT;
 					if (strcmp(result_2->error, "REQUEST_DENIED") == 0)
 					{
 						printf("%s\n", result_2->error);
@@ -169,21 +171,14 @@ void oauth_1(char *host, char *clientFile)
 					else
 					{
 						printf("%s", *result_1);
-						printf(" -> %s\n", result_2->refreshToken);
+						printf(" -> %s\n", result_2->accessToken);
 					}
 				}
-				// if (strcmp(result_2->error, "REQUEST_DENIED")==0)
-				// {
-				// printf("%s\n", result_2->error);
-				// }
-
-				// printf("---Access Return response: %s %s %s %d\n", (*result_2).error, (*result_2).accessToken,
-				// 	(*result_2).refreshToken, (*result_2).valability);
 
 				free(request_authorization_1_arg);
 				free(approve_request_token_1_arg);
 				free(request_access_token_1_arg.userId);
-				free(request_access_token_1_arg.accessToken);
+				free(request_access_token_1_arg.requestToken);
 				free(*result_1);
 				free(result_2->accessToken);
 				free(result_2->refreshToken);
@@ -206,6 +201,7 @@ void oauth_1(char *host, char *clientFile)
 				clnt_perror(clnt, "call failed");
 			}
 			printf("%s\n", *result_3);
+
 			free(validate_delegated_action_1_arg.accessToken);
 			free(validate_delegated_action_1_arg.operation);
 			free(validate_delegated_action_1_arg.resource);

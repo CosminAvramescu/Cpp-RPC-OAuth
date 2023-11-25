@@ -1,4 +1,5 @@
 struct tokensPair {
+    string requestToken<>;
 	string accessToken<>;
 	string refreshToken<>;
     int valability;
@@ -16,7 +17,7 @@ struct handleResource{
 };
 struct userPair{
     string userId<>;
-    string accessToken<>;
+    string requestToken<>;
 };
 struct resourcesPerm{
     string resource<>;

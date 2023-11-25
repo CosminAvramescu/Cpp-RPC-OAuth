@@ -10,6 +10,8 @@ xdr_tokensPair (XDR *xdrs, tokensPair *objp)
 {
 	register int32_t *buf;
 
+	 if (!xdr_string (xdrs, &objp->requestToken, ~0))
+		 return FALSE;
 	 if (!xdr_string (xdrs, &objp->accessToken, ~0))
 		 return FALSE;
 	 if (!xdr_string (xdrs, &objp->refreshToken, ~0))
@@ -56,7 +58,7 @@ xdr_userPair (XDR *xdrs, userPair *objp)
 
 	 if (!xdr_string (xdrs, &objp->userId, ~0))
 		 return FALSE;
-	 if (!xdr_string (xdrs, &objp->accessToken, ~0))
+	 if (!xdr_string (xdrs, &objp->requestToken, ~0))
 		 return FALSE;
 	return TRUE;
 }
