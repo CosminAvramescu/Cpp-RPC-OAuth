@@ -104,11 +104,16 @@ request_access_token_1_svc(struct userPair *argp, struct svc_req *rqstp)
 			if (users[i].validatedToken == true)
 			{
 				users[i].tokens.accessToken = (char *)malloc(50);
-				// users[i].tokens.refreshToken = (char *)malloc(50);
+				users[i].tokens.refreshToken = (char *)malloc(50);
+
 				char *accessToken = (char *)malloc(50);
 				strcpy(accessToken, generate_access_token(argp->requestToken));
-				// strcpy(users[i].tokens.requestToken, requestToken);
+				char *refreshToken = (char *)malloc(50);
+				// strcpy(refreshToken, generate_access_token(accessToken));	
+
+				strcpy(users[i].tokens.refreshToken, refreshToken);
 				strcpy(users[i].tokens.accessToken, accessToken);
+				// strcpy(users[i].tokens.refreshToken, refreshToken);
 				users[i].tokens.valability = valability;
 				result.valability = valability;
 
@@ -116,6 +121,7 @@ request_access_token_1_svc(struct userPair *argp, struct svc_req *rqstp)
 				strcpy(result.accessToken, accessToken);
 				printf("  AccessToken = %s\n", result.accessToken);
 				free(accessToken);
+				free(refreshToken);
 				break;
 			}
 			else
