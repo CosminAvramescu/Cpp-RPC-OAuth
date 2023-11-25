@@ -18,6 +18,7 @@ struct handleResource{
 struct userPair{
     string userId<>;
     string requestToken<>;
+    bool refreshToken;
 };
 struct resourcesPerm{
     string resource<>;
