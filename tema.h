@@ -21,7 +21,8 @@ using namespace std;
 extern "C" {
 #endif
 
-
+// structura care face parte din cea pentru baza de date cu useri 
+// de asemenea, aceasta este returnata de functia request_access_token_1_svc
 struct tokensPair {
 	char *requestToken;
 	char *accessToken;
@@ -31,6 +32,7 @@ struct tokensPair {
 };
 typedef struct tokensPair tokensPair;
 
+// structura pentru baza de date cu useri
 struct user {
 	char *userId;
 	struct tokensPair tokens;
@@ -38,6 +40,7 @@ struct user {
 };
 typedef struct user user;
 
+// structura care se trimite ca argument la validate_delegated_action_1
 struct handleResource {
 	char *operation;
 	char *resource;
@@ -45,6 +48,7 @@ struct handleResource {
 };
 typedef struct handleResource handleResource;
 
+// structura care se trimite la request_access_token_1
 struct userPair {
 	char *userId;
 	char *requestToken;
@@ -53,12 +57,14 @@ struct userPair {
 };
 typedef struct userPair userPair;
 
+// structura pentru vectorul de resurse si permisiuni din map-ul approvals
 struct resourcesPerm {
 	char *resource;
 	char *permissions;
 };
 typedef struct resourcesPerm resourcesPerm;
 
+// variabilele externe folosite de server
 extern vector<user> users;
 extern vector<string> resources;
 extern map<string, vector<struct resourcesPerm>> approvals;

@@ -16,6 +16,7 @@
 #define SIG_PF void (*)(int)
 #endif
 
+// variabilele externe din tema.h
 vector<user> users;
 vector<string> resources;
 int valability;
@@ -125,15 +126,16 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	char *userIdFile, *approvalsFile, *resourcesFile, *valabilityFile;
+	// se extrag fisierele de intrare date ca argumente serverului
+	char *userIdFile, *approvalsFile, *resourcesFile;
 	userIdFile = (char *)malloc(50);
 	approvalsFile = (char *)malloc(50);
 	resourcesFile = (char *)malloc(50);
 	strcpy(userIdFile, argv[1]);
 	strcpy(resourcesFile, argv[2]);
 	strcpy(approvalsFile, argv[3]);
+	// se citeste valabilitatea data ca argument
 	valability = stoi(argv[4]);
-	// printf("%s	%s	%s %d\n", userIdFile, resourcesFile, approvalsFile, valability);
 	ifstream inputFile1(userIdFile);
 
 	if (!inputFile1.is_open())
@@ -142,6 +144,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
+	// se citesc id-urile userilor
 	string line;
 	getline(inputFile1, line, '\n');
 	int size = stoi(line);
@@ -157,11 +160,6 @@ int main(int argc, char **argv)
 
 	inputFile1.close();
 
-	for (int i = 0; i < users.size(); i++)
-	{
-		// cout << users[i].userId << endl;
-	}
-
 	ifstream inputFile2(resourcesFile);
 
 	if (!inputFile2.is_open())
@@ -170,6 +168,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
+	// se citesc resursele disponibile
 	getline(inputFile2, line, '\n');
 	size = stoi(line);
 	for (int i = 0; i < size; i++)
@@ -180,11 +179,7 @@ int main(int argc, char **argv)
 
 	inputFile2.close();
 
-	for (int i = 0; i < resources.size(); i++)
-	{
-		// cout << resources[i] << endl;
-	}
-
+	// se deschide fisierul de approvals care va fi citit linie cu linie in server
 	inputFile4.open(approvalsFile);
 	if (!inputFile4.is_open())
 	{

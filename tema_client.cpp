@@ -10,20 +10,99 @@ map<string, string> userData;
 map<string, string> userRefresh;
 map<string, bool> automatedRefresh;
 
-void authz_and_access(){
-	CLIENT *clnt;
+// functia care face autorizarea, aprobarea si accesul
+// se construiesc structurile si se fac apelurile la server
+void authz_and_access(CLIENT *clnt, string userId, bool refreshToken)
+{
 	char **result_1;
 	char *request_authorization_1_arg;
 	struct tokensPair *result_2;
 	struct userPair request_access_token_1_arg;
-	char **result_3;
-	struct handleResource validate_delegated_action_1_arg;
 	char **result_4;
 	char *approve_request_token_1_arg;
-	int *result_5;
-	char *check_valability_1_arg;
 
-	
+	// AUTHORIZE
+	request_authorization_1_arg = (char *)malloc(50);
+	strcpy(request_authorization_1_arg, userId.c_str());
+	result_1 = request_authorization_1(&request_authorization_1_arg, clnt);
+
+	if (result_1 == (char **)NULL)
+	{
+		clnt_perror(clnt, "call failed");
+	}
+
+	// APPROVE
+	approve_request_token_1_arg = (char *)malloc(50);
+	strcpy(approve_request_token_1_arg, *result_1);
+	result_4 = approve_request_token_1(&approve_request_token_1_arg, clnt);
+	if (result_4 == (char **)NULL)
+	{
+		clnt_perror(clnt, "call failed");
+	}
+
+	// ACCESS
+	request_access_token_1_arg.userId = (char *)malloc(50);
+	strcpy(request_access_token_1_arg.userId, userId.c_str());
+	request_access_token_1_arg.requestToken = (char *)malloc(50);
+	strcpy(request_access_token_1_arg.requestToken, *result_1);
+	request_access_token_1_arg.refreshToken = refreshToken;
+	request_access_token_1_arg.beginRefresh = false;
+
+	result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
+	if (result_2 == (struct tokensPair *)NULL)
+	{
+		clnt_perror(clnt, "call failed");
+	}
+
+	if (strcmp(*result_1, "USER_NOT_FOUND") == 0)
+	{
+		printf("%s\n", *result_1);
+	}
+	else
+	{
+		// se salveaza accessToken intr-un map la cheia userId
+		string accT((*result_2).accessToken);
+		userData[userId] = accT;
+		if (refreshToken == true)
+		{
+			// se salveaza refreshToken in alt map la cheia userId
+			string refrT((*result_2).refreshToken);
+			userRefresh[userId] = refrT;
+		}
+		// daca s-a intors eroare la functia request_access_token_1
+		if (strcmp(result_2->error, "REQUEST_DENIED") == 0)
+		{
+			printf("%s\n", result_2->error);
+		}
+		else
+		{
+			// altfel se afiseaza requestToken si accessToken
+			printf("%s", *result_1);
+			printf(" -> %s", result_2->accessToken);
+			if (refreshToken == true)
+			{
+				// se afiseaza si refreshToken
+				printf(",%s\n", result_2->refreshToken);
+			}
+			else
+			{
+				printf("\n");
+			}
+		}
+	}
+	// se retine in map-ul automatedRefresh la userId daca se doreste sau nu
+	// refresh-ul automat al tokenului la finalizarea valabilitatii
+	automatedRefresh[userId] = refreshToken;
+
+	free(request_authorization_1_arg);
+	free(approve_request_token_1_arg);
+	free(request_access_token_1_arg.userId);
+	free(request_access_token_1_arg.requestToken);
+	free(*result_1);
+	free(result_2->accessToken);
+	free(result_2->refreshToken);
+	free(result_2->error);
+	free(*result_4);
 }
 
 void oauth_1(char *host, char *clientFile)
@@ -55,6 +134,7 @@ void oauth_1(char *host, char *clientFile)
 		cout << "erorr at opening file!";
 	}
 
+	// se citeste linie cu linie din client.in
 	string line, token, userId, operation, resource;
 	while (getline(inputFile, line, '\n'))
 	{
@@ -79,143 +159,21 @@ void oauth_1(char *host, char *clientFile)
 			}
 			i++;
 		}
+		// daca operatia este de tip request
 		if (operation == "REQUEST")
 		{
+			// se verifica tipul resursei si se apeleaza functia authz_and_access
 			if (stoi(resource) == 0)
 			{
-				// AUTHORIZE
-				request_authorization_1_arg = (char *)malloc(50);
-				strcpy(request_authorization_1_arg, userId.c_str());
-				result_1 = request_authorization_1(&request_authorization_1_arg, clnt);
-
-				if (result_1 == (char **)NULL)
-				{
-					clnt_perror(clnt, "call failed");
-				}
-
-				// APPROVE
-				approve_request_token_1_arg = (char *)malloc(50);
-				strcpy(approve_request_token_1_arg, *result_1);
-				result_4 = approve_request_token_1(&approve_request_token_1_arg, clnt);
-				if (result_4 == (char **)NULL)
-				{
-					clnt_perror(clnt, "call failed");
-				}
-
-				// ACCESS
-				request_access_token_1_arg.userId = (char *)malloc(50);
-				strcpy(request_access_token_1_arg.userId, userId.c_str());
-				request_access_token_1_arg.requestToken = (char *)malloc(50);
-				strcpy(request_access_token_1_arg.requestToken, *result_1);
-				request_access_token_1_arg.refreshToken = false;
-				request_access_token_1_arg.beginRefresh = false;
-
-				result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
-				if (result_2 == (struct tokensPair *)NULL)
-				{
-					clnt_perror(clnt, "call failed");
-				}
-
-				if (strcmp(*result_1, "USER_NOT_FOUND") == 0)
-				{
-					printf("%s\n", *result_1);
-				}
-				else
-				{
-					string accT((*result_2).accessToken);
-					userData[userId] = accT;
-					if (strcmp(result_2->error, "REQUEST_DENIED") == 0)
-					{
-						printf("%s\n", result_2->error);
-					}
-					else
-					{
-						printf("%s", *result_1);
-						printf(" -> %s\n", result_2->accessToken);
-					}
-				}
-
-				automatedRefresh[userId] = false;
-				free(request_authorization_1_arg);
-				free(approve_request_token_1_arg);
-				free(request_access_token_1_arg.userId);
-				free(request_access_token_1_arg.requestToken);
-				free(*result_1);
-				free(result_2->accessToken);
-				free(result_2->refreshToken);
-				free(result_2->error);
-				free(*result_4);
+				authz_and_access(clnt, userId, false);
 			}
 			else if (stoi(resource) == 1)
 			{
-				// AUTHORIZE
-				request_authorization_1_arg = (char *)malloc(50);
-				strcpy(request_authorization_1_arg, userId.c_str());
-				result_1 = request_authorization_1(&request_authorization_1_arg, clnt);
-
-				if (result_1 == (char **)NULL)
-				{
-					clnt_perror(clnt, "call failed");
-				}
-
-				// APPROVE
-				approve_request_token_1_arg = (char *)malloc(50);
-				strcpy(approve_request_token_1_arg, *result_1);
-				result_4 = approve_request_token_1(&approve_request_token_1_arg, clnt);
-				if (result_4 == (char **)NULL)
-				{
-					clnt_perror(clnt, "call failed");
-				}
-
-				// ACCESS
-				request_access_token_1_arg.userId = (char *)malloc(50);
-				strcpy(request_access_token_1_arg.userId, userId.c_str());
-				request_access_token_1_arg.requestToken = (char *)malloc(50);
-				strcpy(request_access_token_1_arg.requestToken, *result_1);
-				request_access_token_1_arg.refreshToken = true;
-				request_access_token_1_arg.beginRefresh = false;
-
-				result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
-				if (result_2 == (struct tokensPair *)NULL)
-				{
-					clnt_perror(clnt, "call failed");
-				}
-
-				if (strcmp(*result_1, "USER_NOT_FOUND") == 0)
-				{
-					printf("%s\n", *result_1);
-				}
-				else
-				{
-					string accT((*result_2).accessToken);
-					userData[userId] = accT;
-					string refrT((*result_2).refreshToken);
-					userRefresh[userId] = refrT;
-					if (strcmp(result_2->error, "REQUEST_DENIED") == 0)
-					{
-						printf("%s\n", result_2->error);
-					}
-					else
-					{
-						printf("%s", *result_1);
-						printf(" -> %s", result_2->accessToken);
-						printf(",%s\n", result_2->refreshToken);
-					}
-				}
-				automatedRefresh[userId] = true;
-
-				free(request_authorization_1_arg);
-				free(approve_request_token_1_arg);
-				free(request_access_token_1_arg.userId);
-				free(request_access_token_1_arg.requestToken);
-				free(*result_1);
-				free(result_2->accessToken);
-				free(result_2->refreshToken);
-				free(result_2->error);
-				free(*result_4);
+				authz_and_access(clnt, userId, true);
 			}
 		}
 
+		// se verifica ce valabilitate mai are jetonul
 		check_valability_1_arg = (char *)malloc(50);
 		strcpy(check_valability_1_arg, userId.c_str());
 		result_5 = check_valability_1(&check_valability_1_arg, clnt);
@@ -223,6 +181,8 @@ void oauth_1(char *host, char *clientFile)
 		{
 			clnt_perror(clnt, "call failed");
 		}
+		// daca valabilitatea este 0 si s-a optat pentru refresh automat
+		// se apeleaza functia request_access_token_1
 		if (*result_5 == 0 && automatedRefresh[userId] == true)
 		{
 			// ACCESS
@@ -239,6 +199,7 @@ void oauth_1(char *host, char *clientFile)
 				clnt_perror(clnt, "call failed");
 			}
 
+			// se actualizeaza accessToken si refreshToken in map-urile corespunzatoare
 			string accT((*result_2).accessToken);
 			userData[userId] = accT;
 			string refrT((*result_2).refreshToken);
@@ -251,6 +212,8 @@ void oauth_1(char *host, char *clientFile)
 			free(result_2->error);
 		}
 
+		// daca operatia este altceva in afara de request (read, execute etc)
+		// se construieste structura si se apeleaza validate_delegated_action_1
 		if (operation != "REQUEST")
 		{
 			validate_delegated_action_1_arg.accessToken = (char *)malloc(50);
