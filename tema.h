@@ -80,6 +80,9 @@ extern  char ** validate_delegated_action_1_svc(struct handleResource *, struct 
 #define approve_request_token 4
 extern  char ** approve_request_token_1(char **, CLIENT *);
 extern  char ** approve_request_token_1_svc(char **, struct svc_req *);
+#define check_valability 5
+extern  int * check_valability_1(char **, CLIENT *);
+extern  int * check_valability_1_svc(char **, struct svc_req *);
 extern int oauth_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
@@ -95,6 +98,9 @@ extern  char ** validate_delegated_action_1_svc();
 #define approve_request_token 4
 extern  char ** approve_request_token_1();
 extern  char ** approve_request_token_1_svc();
+#define check_valability 5
+extern  int * check_valability_1();
+extern  int * check_valability_1_svc();
 extern int oauth_1_freeresult ();
 #endif /* K&R C */
 

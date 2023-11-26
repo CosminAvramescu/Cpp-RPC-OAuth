@@ -26,6 +26,7 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 			strcpy(result, generate_access_token(*argp));
 			strcpy(users[i].tokens.requestToken, result);
 			found = true;
+			break;
 		}
 	}
 	if (!found)
@@ -70,21 +71,6 @@ request_authorization_1_svc(char **argp, struct svc_req *rqstp)
 			printf("  RequestToken = %s\n", result);
 		}
 	}
-	// cout << "-----------------------------";
-	// for (const auto &entry : approvals)
-	// {
-	// 	const string &key = entry.first;
-	// 	const vector<resourcesPerm> &value = entry.second;
-
-	// 	cout << "Key: " << key << ", Values: ";
-
-	// 	for (const auto &perm : value)
-	// 	{
-	// 		cout << perm.resource << " " << perm.permissions << " ";
-	// 	}
-
-	// 	cout << endl;
-	// }
 	return &result;
 }
 
@@ -110,19 +96,23 @@ request_access_token_1_svc(struct userPair *argp, struct svc_req *rqstp)
 				strcpy(accessToken, generate_access_token(argp->requestToken));
 				char *refreshToken = (char *)malloc(50);
 
+				if(argp->refreshToken && users[i].tokens.valability==0){
+					printf("BEGIN %s AUTHZ REFRESH\n", argp->userId);
+				}
 				strcpy(users[i].tokens.refreshToken, refreshToken);
 				strcpy(users[i].tokens.accessToken, accessToken);
 				users[i].tokens.valability = valability;
 				result.valability = valability;
-				
+
+				strcpy(result.accessToken, accessToken);
+				printf("  AccessToken = %s\n", result.accessToken);
 				if (argp->refreshToken)
 				{
 					strcpy(refreshToken, generate_access_token(accessToken));
 					strcpy(users[i].tokens.refreshToken, refreshToken);
 					strcpy(result.refreshToken, refreshToken);
+					printf("  RefreshToken = %s\n", result.refreshToken);
 				}
-				strcpy(result.accessToken, accessToken);
-				printf("  AccessToken = %s\n", result.accessToken);
 				free(accessToken);
 				free(refreshToken);
 				break;
@@ -279,6 +269,20 @@ approve_request_token_1_svc(char **argp, struct svc_req *rqstp)
 		}
 	}
 	strcpy(result, *argp);
+
+	return &result;
+}
+
+int *check_valability_1_svc(char **argp, struct svc_req *rqstp)
+{
+	static int result;
+
+	for(int i=0;i<users.size();i++){
+		if(strcmp(users[i].userId, *argp)==0){
+			result=users[i].tokens.valability;
+			break;
+		}
+	}
 
 	return &result;
 }

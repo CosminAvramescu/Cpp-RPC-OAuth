@@ -7,6 +7,8 @@
 #include "tema.h"
 
 map<string, string> userData;
+map<string, string> userRefresh;
+map<string, bool> automatedRefresh;
 
 void oauth_1(char *host, char *clientFile)
 {
@@ -19,6 +21,8 @@ void oauth_1(char *host, char *clientFile)
 	struct handleResource validate_delegated_action_1_arg;
 	char **result_4;
 	char *approve_request_token_1_arg;
+	int *result_5;
+	char *check_valability_1_arg;
 
 #ifndef DEBUG
 	clnt = clnt_create(host, OAUTH, OAUTHVERS, "udp");
@@ -38,6 +42,7 @@ void oauth_1(char *host, char *clientFile)
 	string line, token, userId, operation, resource;
 	while (getline(inputFile, line, '\n'))
 	{
+		bool expired = false;
 		int i = 3;
 		istringstream lineStream(line);
 		while (getline(lineStream, token, ','))
@@ -58,7 +63,6 @@ void oauth_1(char *host, char *clientFile)
 			}
 			i++;
 		}
-
 		if (operation == "REQUEST")
 		{
 			if (stoi(resource) == 0)
@@ -87,6 +91,7 @@ void oauth_1(char *host, char *clientFile)
 				strcpy(request_access_token_1_arg.userId, userId.c_str());
 				request_access_token_1_arg.requestToken = (char *)malloc(50);
 				strcpy(request_access_token_1_arg.requestToken, *result_1);
+				request_access_token_1_arg.refreshToken = false;
 
 				result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
 				if (result_2 == (struct tokensPair *)NULL)
@@ -113,6 +118,7 @@ void oauth_1(char *host, char *clientFile)
 					}
 				}
 
+				automatedRefresh[userId] = false;
 				free(request_authorization_1_arg);
 				free(approve_request_token_1_arg);
 				free(request_access_token_1_arg.userId);
@@ -149,6 +155,7 @@ void oauth_1(char *host, char *clientFile)
 				strcpy(request_access_token_1_arg.userId, userId.c_str());
 				request_access_token_1_arg.requestToken = (char *)malloc(50);
 				strcpy(request_access_token_1_arg.requestToken, *result_1);
+				request_access_token_1_arg.refreshToken = true;
 
 				result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
 				if (result_2 == (struct tokensPair *)NULL)
@@ -164,6 +171,8 @@ void oauth_1(char *host, char *clientFile)
 				{
 					string accT((*result_2).accessToken);
 					userData[userId] = accT;
+					string refrT((*result_2).refreshToken);
+					userRefresh[userId] = refrT;
 					if (strcmp(result_2->error, "REQUEST_DENIED") == 0)
 					{
 						printf("%s\n", result_2->error);
@@ -175,6 +184,7 @@ void oauth_1(char *host, char *clientFile)
 						printf(",%s\n", result_2->refreshToken);
 					}
 				}
+				automatedRefresh[userId] = true;
 
 				free(request_authorization_1_arg);
 				free(approve_request_token_1_arg);
@@ -187,70 +197,43 @@ void oauth_1(char *host, char *clientFile)
 				free(*result_4);
 			}
 		}
-		else
+
+		check_valability_1_arg = (char *)malloc(50);
+		strcpy(check_valability_1_arg, userId.c_str());
+		result_5 = check_valability_1(&check_valability_1_arg, clnt);
+		if (result_5 == (int *)NULL)
 		{
-			// for (int k = 0; k < users.size();k++)
-			// {
-			// 	if (strcmp(users[k].userId, userId.c_str()) == 0)
-			// 	{
-			// 		if (users[k].tokens.valability == 0)
-			// 		{
-			// 			// AUTHORIZE
-			// 			request_authorization_1_arg = (char *)malloc(50);
-			// 			strcpy(request_authorization_1_arg, userId.c_str());
-			// 			result_1 = request_authorization_1(&request_authorization_1_arg, clnt);
+			clnt_perror(clnt, "call failed");
+		}
+		if (*result_5 == 0 && automatedRefresh[userId] == true)
+		{
+			// ACCESS
+			request_access_token_1_arg.userId = (char *)malloc(50);
+			strcpy(request_access_token_1_arg.userId, userId.c_str());
+			request_access_token_1_arg.requestToken = (char *)malloc(50);
+			strcpy(request_access_token_1_arg.requestToken, userRefresh[userId].c_str());
+			request_access_token_1_arg.refreshToken = true;
 
-			// 			if (result_1 == (char **)NULL)
-			// 			{
-			// 				clnt_perror(clnt, "call failed");
-			// 			}
+			result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
+			if (result_2 == (struct tokensPair *)NULL)
+			{
+				clnt_perror(clnt, "call failed");
+			}
 
-			// 			// ACCESS
-			// 			request_access_token_1_arg.userId = (char *)malloc(50);
-			// 			strcpy(request_access_token_1_arg.userId, userId.c_str());
-			// 			request_access_token_1_arg.requestToken = (char *)malloc(50);
-			// 			strcpy(request_access_token_1_arg.requestToken, *result_1);
+			string accT((*result_2).accessToken);
+			userData[userId] = accT;
+			string refrT((*result_2).refreshToken);
+			userRefresh[userId] = refrT;
 
-			// 			result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
-			// 			if (result_2 == (struct tokensPair *)NULL)
-			// 			{
-			// 				clnt_perror(clnt, "call failed");
-			// 			}
+			free(request_access_token_1_arg.userId);
+			free(request_access_token_1_arg.requestToken);
+			free(result_2->accessToken);
+			free(result_2->refreshToken);
+			free(result_2->error);
+		}
 
-			// 			if (strcmp(*result_1, "USER_NOT_FOUND") == 0)
-			// 			{
-			// 				printf("%s\n", *result_1);
-			// 			}
-			// 			else
-			// 			{
-			// 				string accT((*result_2).accessToken);
-			// 				userData[userId] = accT;
-			// 				if (strcmp(result_2->error, "REQUEST_DENIED") == 0)
-			// 				{
-			// 					printf("%s\n", result_2->error);
-			// 				}
-			// 				else
-			// 				{
-			// 					printf("%s", *result_1);
-			// 					printf(" -> %s", result_2->accessToken);
-			// 					printf(",%s\n", result_2->refreshToken);
-			// 				}
-			// 			}
-
-			// 			free(request_authorization_1_arg);
-			// 			free(approve_request_token_1_arg);
-			// 			free(request_access_token_1_arg.userId);
-			// 			free(request_access_token_1_arg.requestToken);
-			// 			free(*result_1);
-			// 			free(result_2->accessToken);
-			// 			free(result_2->refreshToken);
-			// 			free(result_2->error);
-			// 			free(*result_4);
-
-			// 			break;
-			// 		}
-			// 	}
-			// }
+		if (operation != "REQUEST")
+		{
 			validate_delegated_action_1_arg.accessToken = (char *)malloc(50);
 			validate_delegated_action_1_arg.operation = (char *)malloc(50);
 			validate_delegated_action_1_arg.resource = (char *)malloc(50);
@@ -265,6 +248,7 @@ void oauth_1(char *host, char *clientFile)
 			}
 			printf("%s\n", *result_3);
 
+			free(check_valability_1_arg);
 			free(validate_delegated_action_1_arg.accessToken);
 			free(validate_delegated_action_1_arg.operation);
 			free(validate_delegated_action_1_arg.resource);
