@@ -176,7 +176,7 @@ validate_delegated_action_1_svc(struct handleResource *argp, struct svc_req *rqs
 	{
 		bool ok = false;
 		if (strcmp(users[i].tokens.accessToken, argp->accessToken) == 0
-		 	&& (strlen(argp->accessToken) != 0 || strlen(argp->accessToken) != 0))
+		 	&& strlen(argp->accessToken) != 0)
 		{
 			strcpy(accessToken, argp->accessToken);
 			found = true;
