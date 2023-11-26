@@ -96,7 +96,7 @@ request_access_token_1_svc(struct userPair *argp, struct svc_req *rqstp)
 				strcpy(accessToken, generate_access_token(argp->requestToken));
 				char *refreshToken = (char *)malloc(50);
 
-				if(argp->refreshToken && users[i].tokens.valability==0 && argp->beginRefresh==true){
+				if(argp->refreshToken && users[i].tokens.valability==0){
 					printf("BEGIN %s AUTHZ REFRESH\n", argp->userId);
 				}
 				strcpy(users[i].tokens.refreshToken, refreshToken);

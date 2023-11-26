@@ -62,6 +62,8 @@ xdr_userPair (XDR *xdrs, userPair *objp)
 		 return FALSE;
 	 if (!xdr_bool (xdrs, &objp->refreshToken))
 		 return FALSE;
+	 if (!xdr_bool (xdrs, &objp->beginRefresh))
+		 return FALSE;
 	return TRUE;
 }
 

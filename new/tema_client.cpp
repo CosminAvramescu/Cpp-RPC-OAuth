@@ -10,22 +10,6 @@ map<string, string> userData;
 map<string, string> userRefresh;
 map<string, bool> automatedRefresh;
 
-void authz_and_access(){
-	CLIENT *clnt;
-	char **result_1;
-	char *request_authorization_1_arg;
-	struct tokensPair *result_2;
-	struct userPair request_access_token_1_arg;
-	char **result_3;
-	struct handleResource validate_delegated_action_1_arg;
-	char **result_4;
-	char *approve_request_token_1_arg;
-	int *result_5;
-	char *check_valability_1_arg;
-
-	
-}
-
 void oauth_1(char *host, char *clientFile)
 {
 	CLIENT *clnt;
@@ -108,7 +92,6 @@ void oauth_1(char *host, char *clientFile)
 				request_access_token_1_arg.requestToken = (char *)malloc(50);
 				strcpy(request_access_token_1_arg.requestToken, *result_1);
 				request_access_token_1_arg.refreshToken = false;
-				request_access_token_1_arg.beginRefresh = false;
 
 				result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
 				if (result_2 == (struct tokensPair *)NULL)
@@ -173,7 +156,6 @@ void oauth_1(char *host, char *clientFile)
 				request_access_token_1_arg.requestToken = (char *)malloc(50);
 				strcpy(request_access_token_1_arg.requestToken, *result_1);
 				request_access_token_1_arg.refreshToken = true;
-				request_access_token_1_arg.beginRefresh = false;
 
 				result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
 				if (result_2 == (struct tokensPair *)NULL)
@@ -231,7 +213,6 @@ void oauth_1(char *host, char *clientFile)
 			request_access_token_1_arg.requestToken = (char *)malloc(50);
 			strcpy(request_access_token_1_arg.requestToken, userRefresh[userId].c_str());
 			request_access_token_1_arg.refreshToken = true;
-			request_access_token_1_arg.beginRefresh = true;
 
 			result_2 = request_access_token_1(&request_access_token_1_arg, clnt);
 			if (result_2 == (struct tokensPair *)NULL)

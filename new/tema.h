@@ -49,7 +49,6 @@ struct userPair {
 	char *userId;
 	char *requestToken;
 	bool_t refreshToken;
-	bool_t beginRefresh;
 };
 typedef struct userPair userPair;
 

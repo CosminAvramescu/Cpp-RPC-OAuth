@@ -19,6 +19,7 @@ struct userPair{
     string userId<>;
     string requestToken<>;
     bool refreshToken;
+    bool beginRefresh;
 };
 struct resourcesPerm{
     string resource<>;
