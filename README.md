@@ -3,19 +3,16 @@
 
 ---General aspects
 
-    After running rpcgen, the files I modified are: app_server.cpp, app_client.cpp, app_svc.cpp, app.h and Makefile.
+    After running rpcgen, the files I modified are: tema_server.cpp, tema_client.cpp, tema_svc.cpp, tema.h and Makefile.
 
---- Makefile
-    Am schimbat ce era cu .c in .cpp pentru a putea rula app cu fisierele C++. 
+    --- tema.h
+	Here we have libraries and defined global variables. We used these global variables in tema_svc.cpp (for initialization, when reading input files) 
+and in tema_server.cpp (for updating values, working with the database).
 
-    --- app.h
-	Here we have libraries and defined global variables. We used these global variables in app_svc.cpp (for initialization, when reading input files) 
-and in app_server.cpp (for updating values, working with the database).
-
-    --- app_svc.cpp
+    --- tema_svc.cpp
 	Here I open the files given as a parameters when running (userIds, resources). Also, I initialize the global variable valability, which is also received as an argument. 
 
---- app_server.cpp 
+--- tema_server.cpp 
 	Here I implement the server functions (request_authorization_1, request_access_token_1, validate_delegated_action_1,approve_request_token_1_svc).
     I also implemented check_valability_1. I needed this because I needed to know in the client if the token needed to be automatically refreshed (if the token validity reached 0). 
     Client doesn't have access to the users database, and I needed to get the validity information from the server (so that's why I implemented this function).
@@ -45,7 +42,7 @@ and in app_server.cpp (for updating values, working with the database).
 	Browse the approvals map to see if the requestToken key contains the permissions *-. If these permissions are found, invalidate the token via 
     the validity variable in the users database. Then return requestToken.
 
---- app_client.cpp
+--- tema_client.cpp
     	We used 3 global variables, userData (map between userId and accessToken - to extract accessToken and send it to validate_delegated_action_1), 
      userRefresh (map between userId and refreshToken - to send refreshToken as requestToken to request_access_token_1 for automatic refresh) 
      and automatedRefresh (map between userId and bool - to know if token refresh is done or not).
