@@ -1,6 +1,5 @@
 # Cpp-RPC-Oauth
-# 344C3_Avramescu_Cosmin_Alexandru
-
+![mockup](https://i.imgur.com/8YiiFGq.png)
 ---Aspecte generale
 
     Am facut tema in C++. Dupa rularea rpcgen, fisierele pe care le-am modificat sunt: tema_server.cpp, tema_client.cpp, tema_svc.cpp, tema.h si Makefile.

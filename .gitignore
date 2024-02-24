@@ -1,6 +1,6 @@
 # Prerequisites
 *.d
-
+extra/
 # Compiled Object files
 *.slo
 *.lo
