@@ -89,20 +89,12 @@
 
 
 ### Built With
-
-This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
-
 * [![Cpp][Cpp]][Cpp-url]
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
 <!-- GETTING STARTED -->
 ## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
@@ -122,20 +114,18 @@ This is an example of how to list things you need to use the software and how to
    ```sh
    sudo apt-get update
    sudo apt-get install rpcgen
+
    rpcgen app.x
    sudo rpcbind
    ```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Run make command and then run ./app_server in a terminal and ./app_client in another terminal. Run the script ./check.sh to test the app with the tests suite.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+1. Run make command.
+2. Run ./app_server in a terminal and ./app_client in another terminal. 
+3. Run the script ./check.sh to test the app with the tests suite.
 
 
 <!-- CONTRIBUTING -->
@@ -152,39 +142,27 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- CONTACT -->
 ## Contact
 
-Cosmin-Alexandru Avramescu - [@your_linkedin](https://www.linkedin.com/in/cosmin-avramescu/)
+Cosmin-Alexandru Avramescu - [@my_linkedin](https://www.linkedin.com/in/cosmin-avramescu/)
 
 Project Link: [https://github.com/CosminAvramescu/Cpp-RPC-Oauth](https://github.com/CosminAvramescu/Cpp-RPC-Oauth)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
-
 * [rpcgen](https://docs.oracle.com/cd/E19683-01/816-1435/rpcgenpguide-21470/index.html)
 * [Oauth](https://auth0.com/intro-to-iam/what-is-oauth-2)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
