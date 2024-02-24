@@ -3,8 +3,8 @@
  * It was generated using rpcgen.
  */
 
-#ifndef _TEMA_H_RPCGEN
-#define _TEMA_H_RPCGEN
+#ifndef _APP_H_RPCGEN
+#define _APP_H_RPCGEN
 
 #include <rpc/rpc.h>
 #include <sstream>
@@ -133,4 +133,4 @@ extern bool_t xdr_resourcesPerm ();
 }
 #endif
 
-#endif /* !_TEMA_H_RPCGEN */
+#endif /* !_APP_H_RPCGEN */

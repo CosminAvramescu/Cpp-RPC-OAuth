@@ -3,7 +3,7 @@
  * It was generated using rpcgen.
  */
 
-#include "tema.h"
+#include "app.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <rpc/pmap_clnt.h>

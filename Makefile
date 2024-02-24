@@ -3,18 +3,18 @@
 
 # Parameters
 
-CLIENT = tema_client
-SERVER = tema_server
+CLIENT = app_client
+SERVER = app_server
 
 SOURCES_CLNT.cpp = 
 SOURCES_CLNT.h = 
 SOURCES_SVC.cpp = 
 SOURCES_SVC.h = 
-SOURCES.x = tema.x
+SOURCES.x = app.x
 
-TARGETS_SVC.cpp = tema_svc.cpp tema_server.cpp tema_xdr.cpp 
-TARGETS_CLNT.cpp = tema_clnt.cpp tema_client.cpp tema_xdr.cpp 
-TARGETS = tema.h tema_xdr.cpp tema_clnt.cpp tema_svc.cpp tema_client.cpp tema_server.cpp
+TARGETS_SVC.cpp = app_svc.cpp app_server.cpp app_xdr.cpp 
+TARGETS_CLNT.cpp = app_clnt.cpp app_client.cpp app_xdr.cpp 
+TARGETS = app.h app_xdr.cpp app_clnt.cpp app_svc.cpp app_client.cpp app_server.cpp
 
 OBJECTS_CLNT = $(SOURCES_CLNT.cpp:%.cpp=%.o) $(TARGETS_CLNT.cpp:%.cpp=%.o)
 OBJECTS_SVC = $(SOURCES_SVC.cpp:%.cpp=%.o) $(TARGETS_SVC.cpp:%.cpp=%.o)

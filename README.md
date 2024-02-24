@@ -1,54 +1,62 @@
 # Cpp-RPC-Oauth
-![mockup](https://i.imgur.com/8YiiFGq.png)
----Aspecte generale
+![oauth](https://i.imgur.com/8YiiFGq.png)
 
-    Am facut tema in C++. Dupa rularea rpcgen, fisierele pe care le-am modificat sunt: tema_server.cpp, tema_client.cpp, tema_svc.cpp, tema.h si Makefile.
+---General aspects
+
+    After running rpcgen, the files I modified are: app_server.cpp, app_client.cpp, app_svc.cpp, app.h and Makefile.
 
 --- Makefile
-    Am schimbat ce era cu .c in .cpp pentru a putea rula tema cu fisierele C++. 
+    Am schimbat ce era cu .c in .cpp pentru a putea rula app cu fisierele C++. 
 
---- tema.h
-    Aici doar am adaugat alte biblioteci (map, vector, string, etc) si am definit variabilele globale
-cu extern. Am folosit aceste variabile globale in tema_svc.cpp (pentru initializare, la citirea fisierelor de intrare) si in tema_server.cpp (pentru actualizarea valorilor, lucrul cu baza de date).
-    Am scris in dreptul fiecarei structuri la ce am folosit-o. 
+    --- app.h
+	Here we have libraries and defined global variables. We used these global variables in app_svc.cpp (for initialization, when reading input files) 
+and in app_server.cpp (for updating values, working with the database).
 
---- tema_svc.cpp
-    Aici doar import variabilele globale din tema.h si deschid fisierele date ca parametru la rularea 
-serverului (userIds, resources si approvals). Aici citesc efectiv userIds si resources, iar approvals doar este deschis si citesc cate o linie din el in server la fiecare Request facut. Deasemenea, aici initializez variabila globala valability, care este primita tot ca argument. 
+    --- app_svc.cpp
+	Here I open the files given as a parameters when running (userIds, resources). Also, I initialize the global variable valability, which is also received as an argument. 
 
---- tema_server.cpp 
-    Aici am implementat functiile serverului. Pe langa cele pe care le-am identificat din cerinta
-temei (request_authorization_1, request_access_token_1, validate_delegated_action_1,approve_request_token_1_svc), am mai implementat eu check_valability_1. Am avut nevoie de aceasta deoarece trebuia sa stiu in client daca este nevoie sa se faca refresh-ul automat al tokenului (daca valabilitatea tokenului a ajuns la 0). Din moment ce in client nu am acces la baza de date users, a fost nevoie sa obtin informatia de valabilitate de la server (deci de asta am implementat aceasta functie).
-
+--- app_server.cpp 
+	Here I implement the server functions (request_authorization_1, request_access_token_1, validate_delegated_action_1,approve_request_token_1_svc).
+    I also implemented check_valability_1. I needed this because I needed to know in the client if the token needed to be automatically refreshed (if the token validity reached 0). 
+    Client doesn't have access to the users database, and I needed to get the validity information from the server (so that's why I implemented this function).
+    
     --- request_authorization_1
-         Aici primesc userId si caut in baza de date users pana cand gasesc userul care ma intereseaza.
-    Daca nu s-a gasit userul, se intoarce in result USER_NOT_FOUND. Apoi generez un token (requestToken) pe care il pun in result. Dupa ce a fost generat requestToken, se citeste o linie din fisierul
-    approvals pentru a vedea ce permisiuni are userul curent. Se salveaza la cheia requestToken in map-ul approvals vectorul de stucturi cu resursa si permisiunile citite. Apoi se returneaza result.
+    	Here I get userId and search the users database until I find the user I am interested in.
+    If the user is not found, it returns the result USER_NOT_FOUND. Then I generate a token (requestToken) and put it in the result. 
+    After the requestToken has been generated, a line is read from the file approvals file to see what permissions the current user has. 
+    Save to the requestToken key in the approvals map the stub vector with the resource and permissions read. Then return the result.
 
     --- request_access_token_1
-        Se primesc userId, requestToken si 2 variabile bool. Am avut nevoie de variabila bool 
-    refreshToken pentru a sti daca trebuie generat sau nu si refreshToken. Am avut nevoie de variabila
-    bool beginRefresh pentru a sti daca incepe procedura de reactualizare a tokenilor sau nu. Se cauta dupa id userul in baza de date, apoi se verifica daca are tokenul validat, in caz contrar se intoarce REQUEST_DENIED. Daca a fost validat tokenul, se genereaza accessToken. Daca refreshToken e true, se 
-    genereaza si refreshToken. Se actualizeaza in baza de date users valorile accessToken si refreshToken.
+        It receives userId, requestToken and 2 bool variables. We needed the bool variable refreshToken variable to know whether to generate refreshToken or not.
+    We needed the bool variable beginRefresh to know if the token refresh procedure starts or not. Search by id the user in the database, then check if it has the 
+    token validated, otherwise REQUEST_DENIED is returned. If the token has been validated, accessToken is generated. If refreshToken is true, 
+    refreshToken is also generated. Update the accessToken and refreshToken values in the user database.
 
     --- validate_delegated_action_1
-        Se primesc accessToken, operatia si resursa. Se cauta dupa accessToken userul in baza de date.
-    Daca tokenul nu a fost validat, se intoarce OPERATION_NOT_PERMITTED. Altfel, se verifica valabilitatea tokenului. Daca e 0, se intoarce TOKEN_EXPIRED, altfel se verifica daca userul are permisiuni pentru a realiza operatia dorita. Daca nu exista resursa, se intoarce RESOURCE_NOT_FOUND, 
-    altfel se cauta in vectorul de permisiuni din approvals daca exista permisiuni pentru resursa solicitata. Se extrag permisiunile din approvals si se compara cu prima litera din operation (de exemplu daca avem permisiuni RMD si operatie READ, o sa verificam daca prima litera din READ - R se regaseste in RMD). Doar la execute verificam a 2-a litera (X). Daca exista permisiuni, se intoarce
-    PERMISSION_GRANTED, altfel se intoarce OPERATION_NOT_PERMITTED. Daca nu a fost gasit accessToken-ul userului in baza de date, se intoarce PERMISSION_DENIED. 
+        The accessToken, operation and resource are received. Search the database for the user by accessToken.
+    If the token has not been validated, return OPERATION_NOT_PERMITTED. Otherwise, check the validity of the token. If 0, return TOKEN_EXPIRED, otherwise check if 
+    the user has permissions to perform the desired operation. If there is no resource, return RESOURCE_NOT_FOUND, 
+    otherwise check the permissions vector in approvals to see if there are permissions for the requested resource. Extract the permissions from approvals and compare 
+    with the first letter of the operation (for example if we have RMD permissions and READ operation, we will check if the first letter of READ - R is in RMD). 
+    Only at execute we check the 2nd letter (X). If there are permissions, it returns
+    PERMISSION_GRANTED, otherwise it returns OPERATION_NOT_PERMITTED. If the user's accessToken was not found in the database, return PERMISSION_DENIED. 
 
-    --- approve_request_token_1_svc
-        Se parcurge map-ul approvals pentru a vedea daca la cheia requestToken se afla permisiunile
-    *-. Daca se gasesc aceste permisiuni, se invalideaza tokenul prin variabila validity din baza de date users. Apoi se intoarce requestToken.
+    --- approve_request_token_1_svc        
+	Browse the approvals map to see if the requestToken key contains the permissions *-. If these permissions are found, invalidate the token via 
+    the validity variable in the users database. Then return requestToken.
 
---- tema_client.cpp
-    Am folosit 3 variabile globale, userData (map intre userId si accessToken - pentru a extrage accessToken si a il trimite la validate_delegated_action_1), userRefresh (map intre userId si refreshToken - pentru a trimite refreshToken pe post de requestToken la request_access_token_1 pentru reinoirea automata) si automatedRefresh (map intre userId si bool - pentru a sti daca se face sau nu reactualizarea tokenilor).
-
-    --- authz_and_access
-        Am facut aceasta functie pentru a elimina codul duplicat, deoarece in ambele cazuri (REQUEST 0 si
-    REQUEST 1) se apeleaza cele 3 functii de authorize, approve si access din server. Aici se construiesc structurile pentru fiecare apel de functie si se dau ca argumente mai departe serverului. Apoi se actualizeaza map-urile userData, userRefresh si automatedRefresh cu noile valori obtinute si se afiseaza valorile tokenilor obtinuti. 
-
-    --- oauth_1
-        Se citeste linie cu linie din client.in si se executa operatiile. Daca avem REQUEST 0 sau 1, se
-    apeleaza authz_and_access. Apoi se verifica ce valabilitate mai are jetonul userului curent, iar daca
-    valabilitatea este 0 si userul are reinoire automata, atunci se apeleaza metoda request_access_token_1 si se actualizeaza din nou valorile din map-urile userData, userRefresh. Daca operatia nu este de tip Request (adica este de READ, DELETE etc), atunci se construieste structura si se apeleaza metoda validate_delegated_action_1.
+--- app_client.cpp
+    	We used 3 global variables, userData (map between userId and accessToken - to extract accessToken and send it to validate_delegated_action_1), 
+     userRefresh (map between userId and refreshToken - to send refreshToken as requestToken to request_access_token_1 for automatic refresh) 
+     and automatedRefresh (map between userId and bool - to know if token refresh is done or not).
+    
+     --- authz_and_access
+        I made this function to remove duplicate code, because in both cases (REQUEST 0 and
+    REQUEST 1) the functions authorize, approve and access are called from the server. Here we build the structures for each function call and give them as 
+    arguments to the server. Then the userData, userRefresh and automatedRefresh maps are updated with the new values obtained and the values of the tokens obtained are displayed. 
+    
+     --- oauth_1
+        Read line by line from client.in and execute the operations. If we have REQUEST 0 or 1, the
+    authz_and_access is called. Then the validity of the current user token is checked, and if
+    validity is 0 and the user has automatic renewal, then call request_access_token_1 method and update again the values in userData, userRefresh maps. 
+    If the operation is not of type Request (i.e. READ, DELETE etc), then build the structure and call the method validate_delegated_action_1.
