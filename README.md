@@ -162,7 +162,7 @@ Project Link: [https://github.com/CosminAvramescu/Cpp-RPC-Oauth](https://github.
 ## Acknowledgments
 
 * [rpcgen](https://docs.oracle.com/cd/E19683-01/816-1435/rpcgenpguide-21470/index.html)
-* [Oauth](https://support.smartbear.com/readyapi/docs/requests/auth/types/oauth1/about.html)
+* [Oauth](https://www.soapui.org/docs/oauth1/oauth1-overview/)
 
 
 
