@@ -160,5 +160,5 @@ Project Link: [https://github.com/CosminAvramescu/Cpp-RPC-OAuth](https://github.
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/othneildrew
 [product-screenshot]: images/screenshot.png
-[Cpp]: https://img.shields.io/badge/-C++-blue?logo=cplusplus
+[Cpp]: https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white
 [Cpp-url]: https://isocpp.org/
