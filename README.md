@@ -24,7 +24,8 @@
     validate_delegated_action_1,approve_request_token_1_svc). I also implemented check_valability_1. I
     needed this because I needed to know in the client if the token needed to be automatically 
     refreshed (if the token validity reached 0). Client doesn't have access to the users database, and
-    I needed to get the validity information from the server (so that's why I implemented this function).
+    I needed to get the validity information from the server (so that's why I implemented this 
+    function).
     
     --- request_authorization_1
     	Here I get userId and search the users database until I find the user I am interested in. If
@@ -62,22 +63,24 @@
 
     	We used 3 global variables, userData (map between userId and accessToken - to extract 
     accessToken and send it to validate_delegated_action_1), userRefresh (map between userId and 
-    refreshToken - to send refreshToken as requestToken to request_access_token_1 for automatic refresh)
-    and automatedRefresh (map between userId and bool - to know if token refresh is done or not).
+    refreshToken - to send refreshToken as requestToken to request_access_token_1 for automatic 
+    refresh) and automatedRefresh (map between userId and bool - to know if token refresh is done
+    or not).
     
      --- authz_and_access
         I made this function to remove duplicate code, because in both cases (REQUEST 0 and REQUEST 1) 
-    the functions authorize, approve and access are called from the server. Here we build the structures
-    for each function call and give them as arguments to the server. Then the userData, userRefresh and 
-    automatedRefresh maps are updated with the new values obtained and the values of the tokens obtained 
-    are displayed. 
+    the functions authorize, approve and access are called from the server. Here we build the 
+    structures for each function call and give them as arguments to the server. Then the userData, 
+    userRefresh and automatedRefresh maps are updated with the new values obtained and the values of 
+    the tokens obtained are displayed. 
     
      --- oauth_1
         Read line by line from client.in and execute the operations. If we have REQUEST 0 or 1, the 
-    authz_and_access is called. Then the validity of the current user token is checked, and if validity 
-    is 0 and the user has automatic renewal, then call request_access_token_1 method and update again 
-    the values in userData, userRefresh maps. If the operation is not of type Request (i.e. READ, DELETE 
-    etc), then build the structure and call the method validate_delegated_action_1.
+    authz_and_access is called. Then the validity of the current user token is checked, and if 
+    validity is 0 and the user has automatic renewal, then call request_access_token_1 method and 
+    update again the values in userData, userRefresh maps. If the operation is not of type Request
+    (i.e. READ, DELETE etc), then build the structure and call the method 
+    validate_delegated_action_1.
 
 
 
