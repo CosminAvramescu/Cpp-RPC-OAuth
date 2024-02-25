@@ -1,12 +1,3 @@
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <p align="center">
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
-  </p>
-</div>
-
 <!-- ABOUT THE PROJECT -->
 # ABOUT THE PROJECT
 ![oauth](https://i.imgur.com/8YiiFGq.png)
@@ -94,17 +85,8 @@
 * [![Cpp][Cpp]][Cpp-url]
 
 
-
 <!-- GETTING STARTED -->
 ## Getting Started
-
-### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
 
 ### Installation
 
