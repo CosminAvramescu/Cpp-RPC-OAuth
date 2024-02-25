@@ -11,6 +11,8 @@
 # ABOUT THE PROJECT
 ![oauth](https://i.imgur.com/8YiiFGq.png)
 
+	Implemented OAuth between a server and a client using RPC and C++.	
+
 ---General aspects
 
     After running rpcgen, the files I modified are: app_server.cpp, app_client.cpp, app_svc.cpp, app.h
@@ -108,7 +110,7 @@ This is an example of how to list things you need to use the software and how to
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/CosminAvramescu/Cpp-RPC-Oauth.git
+   git clone https://github.com/CosminAvramescu/Cpp-RPC-OAuth.git
    ```
 2. Install rpcgen
    ```sh
@@ -155,14 +157,14 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 Cosmin-Alexandru Avramescu - [@my_linkedin](https://www.linkedin.com/in/cosmin-avramescu/)
 
-Project Link: [https://github.com/CosminAvramescu/Cpp-RPC-Oauth](https://github.com/CosminAvramescu/Cpp-RPC-Oauth)
+Project Link: [https://github.com/CosminAvramescu/Cpp-RPC-OAuth](https://github.com/CosminAvramescu/Cpp-RPC-OAuth)
 
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
 * [rpcgen](https://docs.oracle.com/cd/E19683-01/816-1435/rpcgenpguide-21470/index.html)
-* [Oauth](https://www.soapui.org/docs/oauth1/oauth1-overview/)
+* [OAuth](https://www.soapui.org/docs/oauth1/oauth1-overview/)
 
 
 
