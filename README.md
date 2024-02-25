@@ -15,30 +15,30 @@
     updating values, working with the database).
 
     --- app_svc.cpp
-	Here I open the files given as a parameters when running (userIds, resources). Also, I initialize 
+	Here I open the files given as a parameters when running (userIds, resources). Also, I initialize
     the global variable valability, which is also received as an argument. 
 
 --- app_server.cpp
 
 	Here I implement the server functions (request_authorization_1, request_access_token_1, 
-    validate_delegated_action_1,approve_request_token_1_svc). I also implemented check_valability_1. I 
-    needed this because I needed to know in the client if the token needed to be automatically refreshed 
-    (if the token validity reached 0). Client doesn't have access to the users database, and I needed to 
+    validate_delegated_action_1,approve_request_token_1_svc). I also implemented check_valability_1. I
+    needed this because I needed to know in the client if the token needed to be automatically refreshed
+    (if the token validity reached 0). Client doesn't have access to the users database, and I needed to
     get the validity information from the server (so that's why I implemented this function).
     
     --- request_authorization_1
-    	Here I get userId and search the users database until I find the user I am interested in. If the
-    user is not found, it returns the result USER_NOT_FOUND. Then I generate a token (requestToken) and 
-    put it in the result. After the requestToken has been generated, a line is read from the file 
+    	Here I get userId and search the users database until I find the user I am interested in. If
+    the user is not found, it returns the result USER_NOT_FOUND. Then I generate a token (requestToken)
+    and put it in the result. After the requestToken has been generated, a line is read from the file 
     approvals file to see what permissions the current user has. Save to the requestToken key in the 
     approvals map the stub vector with the resource and permissions read. Then return the result.
 
     --- request_access_token_1
-        It receives userId, requestToken and 2 bool variables. We needed the bool variable refreshToken 
-    variable to know whether to generate refreshToken or not. We needed the bool variable beginRefresh to 
-    know if the token refresh procedure starts or not. Search by id the user in the database, then check 
-    if it has the token validated, otherwise REQUEST_DENIED is returned. If the token has been validated, 
-    accessToken is generated. If refreshToken is true, refreshToken is also generated. Update the 
+        It receives userId, requestToken and 2 bool variables. We needed the bool variable refreshToken
+    variable to know whether to generate refreshToken or not. We needed the bool variable beginRefresh to
+    know if the token refresh procedure starts or not. Search by id the user in the database, then check
+    if it has the token validated, otherwise REQUEST_DENIED is returned. If the token has been validated,
+    accessToken is generated. If refreshToken is true, refreshToken is also generated. Update the
     accessToken and refreshToken values in the user database.
 
     --- validate_delegated_action_1
