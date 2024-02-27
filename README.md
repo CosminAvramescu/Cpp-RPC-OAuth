@@ -9,12 +9,12 @@
     After running rpcgen, the files I modified are: app_server.cpp, app_client.cpp, app_svc.cpp, app.h
     and Makefile.
 
-    --- app.h
+--- app.h
 	Here we have libraries and defined global variables. We used these global variables in 
     app_svc.cpp (for initialization, when reading input files) and in app_server.cpp (for 
     updating values, working with the database).
 
-    --- app_svc.cpp
+--- app_svc.cpp
 	Here I open the files given as a parameters when running (userIds, resources). Also, I 
     initialize the global variable valability, which is also received as an argument. 
 
@@ -102,7 +102,7 @@
    sudo apt-get update
    sudo apt-get install rpcgen
 
-   rpcgen app.x
+   (rpcgen app.x)
    sudo rpcbind
    ```
 
