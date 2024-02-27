@@ -22,7 +22,7 @@
 
 --- app_server.cpp
 
-	Here I implement the server functions (request_authorization_1, request_access_token_1, 
+	    Here I implement the server functions (request_authorization_1, request_access_token_1, 
     validate_delegated_action_1,approve_request_token_1_svc). I also implemented check_valability_1. I
     needed this because I needed to know in the client if the token needed to be automatically 
     refreshed (if the token validity reached 0). Client doesn't have access to the users database, and
