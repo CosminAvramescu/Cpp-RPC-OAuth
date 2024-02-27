@@ -6,8 +6,8 @@
 
 ---General aspects
 
-        After running rpcgen, the files I modified are: app_server.cpp, app_client.cpp, app_svc.cpp, app.h
-    and Makefile.
+        After running rpcgen, the files I modified are: app_server.cpp, app_client.cpp, 
+    app_svc.cpp, app.h and Makefile.
 
 --- app.h
 
